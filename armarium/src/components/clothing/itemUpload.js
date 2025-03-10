@@ -32,7 +32,7 @@ const ItemUpload = () => {
     },
     {
       target: '#uploadbutton', 
-      content: 'Here is where you can upload your clothing item to the wadrobe once you are all done.',
+      content: 'Here is where you can upload your clothing item to the wardrobe once you are all done.',
     },
   ]);
 

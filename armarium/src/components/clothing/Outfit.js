@@ -239,20 +239,18 @@ function Outfit() {
       //Rewrite to save itemid instead of url to user's outfits collection
       // Upload top image
       const topImage = tops[topIndex];
-      const topImageRef = ref(storage, `Users/${user.uid}/tops/${Date.now()}_${topIndex}.jpg`);
+      const topImageRef = ref(storage, `Users/${user.uid}/ItemsCollection/top/${Date.now()}_${topIndex}.jpg`); ///Users/4EPRfCOVjgUV4tDlwbULjqhuPJJ3/ItemsCollection/top
       await uploadBytes(topImageRef, await fetch(topImage).then(r => r.blob()));
       const topImageUrl = await getDownloadURL(topImageRef);
       
-      
-      
       // Upload bottom image
       const bottomImage = bottoms[bottomIndex];
-      const bottomImageRef = ref(storage, `Users/${user.uid}/bottoms/${Date.now()}_${bottomIndex}.jpg`);
+      const bottomImageRef = ref(storage, `Users/${user.uid}/ItemsCollection/bottoms/${Date.now()}_${bottomIndex}.jpg`);
       await uploadBytes(bottomImageRef, await fetch(bottomImage).then(r => r.blob()));
       const bottomImageUrl = await getDownloadURL(bottomImageRef);
 
       const shoesImage = shoes[shoesIndex];
-      const shoesImageRef = ref(storage, `Users/${user.uid}/shoes/${Date.now()}_${shoesIndex}.jpg`);
+      const shoesImageRef = ref(storage, `Users/${user.uid}/ItemsCollection/shoes/${Date.now()}_${shoesIndex}.jpg`);
       await uploadBytes(shoesImageRef, await fetch(shoesImage).then(r => r.blob()));
       const shoesImageUrl = await getDownloadURL(shoesImageRef);
 
