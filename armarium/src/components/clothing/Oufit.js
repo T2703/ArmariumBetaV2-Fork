@@ -4,7 +4,7 @@ import '../styles/Outfits.css';
 import '../styles/Modal.css';
 import Navbar from '../Navbar';
 import { collection, getDoc, getDocs,addDoc,getFirestore, doc, updateDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { auth, db, storage } from '../backend/firebaseConfig';
 import { useNavigate } from 'react-router-dom';
@@ -103,6 +103,9 @@ function Outfit() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [outfitName, setOutfitName] = useState('');
+  const [usingNewFolder, setUsingNewFolder] = useState(false);
+  const [folderName, setFolderName] = useState('No Folder');
+  const [folderList, setFolderList] = useState([]);
   const [runTour, setRunTour] = useState(false);
   const [steps, setSteps] = useState([
     {
@@ -218,6 +221,7 @@ function Outfit() {
         if (user) {
             fetchData(user).then(() => setLoading(false));
             fetchData(user).then(() => checkNewUser(user));
+            getOutfitFolders(user); // Fetch outfit folders when user is authenticated
         } else {
             navigate('/login'); // Ensure you have a login route
         }
@@ -256,7 +260,7 @@ function Outfit() {
       await uploadBytes(shoesImageRef, await fetch(shoesImage).then(r => r.blob()));
       const shoesImageUrl = await getDownloadURL(shoesImageRef);
 
-      await addDoc(collection(db, `Users/${user.uid}/Outfits`), {
+      await addDoc(collection(db, `Users/${user.uid}/Outfits/OutfitFolders/${folderName}/`), {
         topImageUrl,
         bottomImageUrl,
         shoesImageUrl,
@@ -267,13 +271,37 @@ function Outfit() {
     
       // Store URLs in Firestore
     
-      console.log('Outfit saved successfully');
+      console.log('Outfit saved successfully to {}', folderName);
       alert('Outfit saved successfully!');
       setShowModal(false);
       setOutfitName('');
+      setFolderName('No Folder');
     } catch (error) {
       console.error('Error saving outfit:', error);
       alert('Error saving outfit. Please try again.');
+    }
+  };
+
+  const getOutfitFolders = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert('Please log in to save your outfit.');
+      return;
+    }
+
+    try {
+      const folderRef = collection(db, `Users/${user.uid}/outfitFolders/`);
+      const folderSnapshot = await getDocs(folderRef);
+  
+      // Extract folder names from prefixes
+      const folders = folderSnapshot.docs.map((doc) => doc.id);
+      setFolderList(folders);
+      console.log('Folders:', folders);
+    } catch (error) {
+      console.error('Error fetching folders:', error);
+      alert('Error fetching folders. Please try again.');
     }
   };
 
@@ -408,6 +436,10 @@ function Outfit() {
                 value={outfitName}
                 onChange={(e) => setOutfitName(e.target.value)}
               />
+              <p>(Optional) Choose a folder</p>
+              <select id="folderSelect" onChange={(e) => setFolderName(e.target.value)}>
+              {folderList.map((folder, index) => ( <option key={index} value={folder}>{folder}</option> ))}
+              </select>
             </div>
   
             <div className="modal-footer">
