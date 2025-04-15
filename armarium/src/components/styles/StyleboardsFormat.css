@@ -1,38 +1,80 @@
-.styleboards-list {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .styleboard-item {
-    width: 350px;
-  }
-  
-  .styleboard-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    justify-items: center;
-  }
-  
-  .styleboard-image {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-  }
+.styleboard-page-container {
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  min-height: 100vh;
+}
 
-  .outfit-image {
-    width: 100px;
-    height: 100px;
-    margin: 10px;
-    cursor: pointer;
-    border: 2px solid transparent;
-    border-radius: 5px;
-  }
-  
-  .outfit-image.selected {
-    border: 2px solid #007bff;
-    box-shadow: 0 0 5px #007bff;
-  }
+
+.styleboards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.styleboards-header h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.styleboards-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.styleboards-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.styleboard-item {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.styleboard-item:hover {
+  transform: translateY(-5px);
+}
+
+.styleboard-header {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
+  font-size: 1.25rem;
+  background-color: #f5f5f5;
+  text-align: center;
+}
+
+.outfit-preview {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 1rem;
+  background-color: #fafafa;
+}
+
+.styleboard-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.styleboard-delete {
+  padding: 1rem;
+  text-align: center;
+  background-color: #fff;
+}
+
+.styleboard-delete input {
+  margin-right: 0.5rem;
+}

@@ -168,99 +168,79 @@ const handleStyleboardClick = (styleboard) => {
 }, []);
 
 return (
-  <div>
-    <Navbar /> 
-    <h1>My Styleboards</h1>
+  <div className="styleboards-container">
+    <Navbar />
 
-    <input
-      type="text"
-      placeholder="Search styleboard by title"
-      value={searchInput}
-      onChange={handleSearchChange} 
-    />
+    <div className="styleboards-header">
+      <h1>My Styleboards</h1>
+      <div className="styleboards-controls">
+        <input
+          type="text"
+          placeholder="Search styleboard by title"
+          value={searchInput}
+          onChange={handleSearchChange}
+        />
+        <button onClick={toggleDelete}>
+          {isDelete ? 'Cancel' : 'Delete'}
+        </button>
+        {isDelete && (
+          <button onClick={handleDelete}>
+            Confirm Delete
+          </button>
+        )}
+      </div>
+    </div>
 
-    <button onClick={toggleDelete}>
-      {isDelete ? 'Cancel' : 'Delete'}
-    </button>
-    {isDelete && (
-      <button onClick={handleDelete} style={{ marginLeft: '10px' }}>
-        Confirm Delete
-      </button>
-    )}
-
-
-    <ul className="styleboards-list">
+    <div className="styleboards-list">
       {styleboards.length > 0 ? (
         styleboards.map((styleboard) => {
-          const isSelected = styleboardToDelete.some((item) => item.id === styleboard.id); 
+          const isSelected = styleboardToDelete.some((item) => item.id === styleboard.id);
+          const outfit = styleboard.outfits[0] || {};
+          const images = outfit.images || {};
 
           return (
-            <li
+            <div
               key={styleboard.id}
               className="styleboard-item"
               onClick={() => {
-                if (!isDelete) {
-                  console.log("Navigating to styleboard:", styleboard.id); 
-                  handleStyleboardClick(styleboard);
-                }
+                if (!isDelete) handleStyleboardClick(styleboard);
               }}
               style={{
-                cursor: 'pointer',
-                border: isSelected ? '2px solid red' : '1px solid #ccc', 
-                padding: '10px',
-                margin: '10px',
+                border: isSelected ? '2px solid red' : 'none'
               }}
             >
-              <div className="image-container">
-                <h1>{styleboard.styleboardName}</h1>
-                {styleboard.outfits.length > 0 && (
-                  <div>
-                    {styleboard.outfits[0].images.top && (
-                      <img
-                        src={styleboard.outfits[0].images.top}
-                        alt="Top"
-                        className="styleboard-image"
-                      />
-                    )}
-                    {styleboard.outfits[0].images.bottom ? (
-                      <img
-                        src={styleboard.outfits[0].images.bottom}
-                        alt="Bottom"
-                        className="styleboard-image"
-                      />
-                    ) : (
-                      <p>No bottom image available</p>
-                    )}
-                    {styleboard.outfits[0].images.shoes && (
-                      <img
-                        src={styleboard.outfits[0].images.shoes}
-                        alt="Shoes"
-                        className="styleboard-image"
-                      />
-                    )}
-                  </div>
+              <div className="styleboard-header">{styleboard.styleboardName}</div>
+              <div className="outfit-preview">
+                {images.top && (
+                  <img src={images.top} alt="Top" className="styleboard-image" />
+                )}
+                {images.bottom ? (
+                  <img src={images.bottom} alt="Bottom" className="styleboard-image" />
+                ) : (
+                  <span style={{ color: '#888' }}>No Bottom</span>
+                )}
+                {images.shoes && (
+                  <img src={images.shoes} alt="Shoes" className="styleboard-image" />
                 )}
               </div>
+
               {isDelete && (
-                <div
-                  onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking the checkbox
-                  style={{ display: 'inline-block', marginTop: '10px' }}
-                >
+                <div className="styleboard-delete" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
-                    checked={isSelected} 
-                    onChange={() => addToDeleteList(styleboard)} // Toggle selection
+                    checked={isSelected}
+                    onChange={() => addToDeleteList(styleboard)}
                   />
-                  <label style={{ marginLeft: '5px' }}>Select for Deletion</label>
+                  <label>Select for Deletion</label>
                 </div>
               )}
-            </li>
+            </div>
           );
         })
       ) : (
         <p>No styleboards found.</p>
       )}
-    </ul>
+    </div>
   </div>
 );
 }

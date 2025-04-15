@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
+import '../styles/Styleboards.css'; // ✅ Make sure this path is correct
 
 function StyleboardPage() {
   const location = useLocation();
@@ -12,24 +13,37 @@ function StyleboardPage() {
   }
 
   return (
-    <div>
+    <div className="styleboard-page-container">
       <Navbar />
-      <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
+      <button onClick={() => navigate(-1)} className="back-button">
         Back to Styleboards
       </button>
-      <h1>{styleboard.styleboardName}</h1>
-      <ul className="outfits-list">
+      <h1 className="styleboard-title">{styleboard.styleboardName}</h1>
+
+      <div className="outfit-grid-container">
         {styleboard.outfits.map((outfit) => (
-          <li key={outfit.name} className="outfit-item">
-            <h2>{outfit.name}</h2>
-            <div className="image-container">
-              {outfit.images.top && <img src={outfit.images.top} alt="Top" />}
-              {outfit.images.bottom && <img src={outfit.images.bottom} alt="Bottom" />}
-              {outfit.images.shoes && <img src={outfit.images.shoes} alt="Shoes" />}
+          <div key={outfit.name} className="outfit-grid-card">
+            <h2 className="outfit-name">{outfit.name}</h2>
+            <div className="outfit-image-group">
+              {['top', 'bottom', 'shoes'].map((part) =>
+                outfit.images?.[part] ? (
+                  <div className="outfit-slot" key={part}>
+                    <img
+                      src={outfit.images[part]}
+                      alt={part}
+                      className="outfit-img-small"
+                      onError={(e) => (e.target.style.display = 'none')}
+                    />
+                    <span className="outfit-label">
+                      {part.charAt(0).toUpperCase() + part.slice(1)}
+                    </span>
+                  </div>
+                ) : null
+              )}
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
