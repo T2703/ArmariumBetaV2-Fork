@@ -6,7 +6,7 @@
 
 .page-title {
   color: #a52a2a;
-  font-size: 200%;
+  font-size: 3em;
   font-weight: bold;
 }
 
@@ -19,7 +19,7 @@
     border: 2px solid #a52a2a;
     border-right: none;
     width: 50%;
-    padding: 1.5% 3%;
+    padding: 4px 8px;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     border-top-right-radius: 0;
@@ -33,7 +33,7 @@
     background-color: white;
     border: 2px solid #a52a2a;
     width:50%;
-    padding: 1.5% 3%;
+    padding: 4px 8px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-top-right-radius: 20px;

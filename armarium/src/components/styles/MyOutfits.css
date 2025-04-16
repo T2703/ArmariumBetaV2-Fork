@@ -6,7 +6,7 @@
 
 .page-title {
   color: #a52a2a;
-  font-size: 50px;
+  font-size: 1px;
   font-weight: bold;
 }
 
@@ -101,3 +101,17 @@
   left: 43.75%;
   top: 12.5%;
 }
+
+/* @media (max-width: 769px) {
+  .outer-outfit {
+    width: 100%;
+  }
+
+  .page-title {
+    font-size: 1px;
+  }
+}
+
+@media (max-width: 768px) {
+
+} */
