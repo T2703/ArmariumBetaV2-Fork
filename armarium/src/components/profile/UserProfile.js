@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  addDoc
+} from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import '../styles/UserProfile.css';
 import Navbar from '../Navbar';
@@ -76,9 +86,19 @@ export default function UserProfile() {
     if (!user) return;
 
     const userRef = doc(db, 'Users', user.uid);
+
+    // 1. Update main user document
     await updateDoc(userRef, {
       height: editedMeasurements.height,
       weight: editedMeasurements.weight,
+    });
+
+    // 2. Add new document to 'measurements' subcollection
+    const measurementRef = collection(db, 'Users', user.uid, 'measurements');
+    await addDoc(measurementRef, {
+      height: editedMeasurements.height,
+      weight: editedMeasurements.weight,
+      timestamp: new Date(),
     });
 
     setUserData(prev => ({

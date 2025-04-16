@@ -5,6 +5,7 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
 import ItemUpload from './itemUpload';
+import ClothesLibSearch from './ClothesLibSearch';
 import '../styles/Loading.css';
 import '../styles/Wardrobe.css';
 import '../styles/Forms.css';
@@ -23,6 +24,7 @@ const Wardrobe = () => {
     const [clothesToDelete, setClothesToDelete] = useState([]);
     const [searchInput, setSearchInput] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLibraryModalOpen, setIsLibraryModalOpen] = useState(false);
     const [selectedType, setSelectedType] = useState('');
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -34,9 +36,18 @@ const Wardrobe = () => {
         setIsModalOpen(true);
         document.body.classList.add('modal-open'); // Prevent scrolling
     };
+
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        document.body.classList.remove('modal-open'); // Allow scrolling
+        document.body.classList.remove('modal-open');
+    };
+
+    const handleOpenLibraryModal = () => {
+        setIsLibraryModalOpen(true);
+    };
+
+    const handleCloseLibraryModal = () => {
+        setIsLibraryModalOpen(false);
     };
 
     const filteredClothes = (clothes) => {
@@ -154,7 +165,7 @@ const Wardrobe = () => {
 
         setClothesToDelete([]);
         setIsDelete(false);
-    }
+    };
 
     const addToDeleteList = (clothing) => {
         setClothesToDelete(prevList => {
@@ -164,7 +175,7 @@ const Wardrobe = () => {
                 return [...prevList, clothing];
             }
         });
-    }
+    };
 
     const handleDeleteClick = (id, type) => {
         console.log('Type: ', type);
@@ -214,7 +225,7 @@ const Wardrobe = () => {
     const handleSearchChange = (e) => {
         const inputValue = e.target.value.toLowerCase();
         setSearchInput(inputValue);
-    }
+    };
 
     if (loading) {
         return <div><Navbar /> <div className="loader"></div></div>;
@@ -228,32 +239,46 @@ const Wardrobe = () => {
         <div>
             <Navbar />
             <div className="wardrobe-header">
-                <input 
-                type="text" 
-                placeholder="Search by title or tags..." 
-                value={searchInput} 
-                onChange={handleSearchChange} 
-                className="wardrobe-search"
+                <input
+                    type="text"
+                    placeholder="Search by title or tags..."
+                    value={searchInput}
+                    onChange={handleSearchChange}
+                    className="wardrobe-search"
                 />
                 <button className="nav-link" onClick={toggleDelete}>
-                {isDelete ? 'Cancel' : 'Delete'}
+                    {isDelete ? 'Cancel' : 'Delete'}
                 </button>
                 {isDelete && (
-                <button className="nav-link" onClick={handleDelete}>
-                    Confirm Delete
-                </button>
+                    <button className="nav-link" onClick={handleDelete}>
+                        Confirm Delete
+                    </button>
                 )}
             </div>
+
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <ItemUpload type={selectedType}/>
-                        <button className="modal-close" onClick={handleCloseModal}>
-                            Close
+                        <ItemUpload type={selectedType} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                            <button className="modal-close" onClick={handleCloseModal}>Close</button>
+                            <button className="modal-close" onClick={handleOpenLibraryModal}>Clothing Library</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isLibraryModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <ClothesLibSearch />
+                        <button className="modal-close" onClick={handleCloseLibraryModal}>
+                            Close Library
                         </button>
                     </div>
-            </div>
+                </div>
             )}
+
             {/* Tops Row */}
             <div className="wardrobe-row">
                 <div className='Add-Button'>
@@ -264,22 +289,22 @@ const Wardrobe = () => {
                 </div>
                 <div className="wardrobe-content-row">
                     {filteredClothes(tops).map((top, index) => (
-                    <div key={top.id} className="wardrobe-item">
-                        <img 
-                        src={top.url} 
-                        alt={`Top ${index + 1}`} 
-                        className="wardrobe-image"
-                        onClick={() => handleDeleteClick({ id: top.id, type: 'top' })}
-                        />
-                        {isDelete && (
-                        <button
-                            onClick={() => addToDeleteList({ id: top.id, type: 'top' })}
-                            className="delete-button"
-                        >
-                            {clothesToDelete.some(item => item.id === top.id) ? 'Remove' : 'Select'}
-                        </button>
-                        )}
-                    </div>
+                        <div key={top.id} className="wardrobe-item">
+                            <img
+                                src={top.url}
+                                alt={`Top ${index + 1}`}
+                                className="wardrobe-image"
+                                onClick={() => handleDeleteClick({ id: top.id, type: 'top' })}
+                            />
+                            {isDelete && (
+                                <button
+                                    onClick={() => addToDeleteList({ id: top.id, type: 'top' })}
+                                    className="delete-button"
+                                >
+                                    {clothesToDelete.some(item => item.id === top.id) ? 'Remove' : 'Select'}
+                                </button>
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>
@@ -294,22 +319,22 @@ const Wardrobe = () => {
                 </div>
                 <div className="wardrobe-content-row">
                     {filteredClothes(bottoms).map((bottom, index) => (
-                    <div key={bottom.id} className="wardrobe-item">
-                        <img 
-                        src={bottom.url} 
-                        alt={`Bottom ${index + 1}`} 
-                        className="wardrobe-image"
-                        onClick={() => handleDeleteClick({ id: bottom.id, type: 'bottom' })}
-                        />
-                        {isDelete && (
-                        <button
-                            onClick={() => addToDeleteList({ id: bottom.id, type: 'bottom' })}
-                            className="delete-button"
-                        >
-                            {clothesToDelete.some(item => item.id === bottom.id) ? 'Remove' : 'Select'}
-                        </button>
-                        )}
-                    </div>
+                        <div key={bottom.id} className="wardrobe-item">
+                            <img
+                                src={bottom.url}
+                                alt={`Bottom ${index + 1}`}
+                                className="wardrobe-image"
+                                onClick={() => handleDeleteClick({ id: bottom.id, type: 'bottom' })}
+                            />
+                            {isDelete && (
+                                <button
+                                    onClick={() => addToDeleteList({ id: bottom.id, type: 'bottom' })}
+                                    className="delete-button"
+                                >
+                                    {clothesToDelete.some(item => item.id === bottom.id) ? 'Remove' : 'Select'}
+                                </button>
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>
@@ -323,23 +348,23 @@ const Wardrobe = () => {
                     </button>
                 </div>
                 <div className="wardrobe-content-row">
-                {filteredClothes(shoes).map((shoe, index) => (
-                    <div key={shoe.id} className="wardrobe-item">
-                        <img 
-                        src={shoe.url} 
-                        alt={`Shoe ${index + 1}`} 
-                        className="wardrobe-image"
-                        onClick={() => handleDeleteClick({ id: shoe.id, type: 'shoes' })}
-                        />
-                        {isDelete && (
-                        <button
-                            onClick={() => addToDeleteList({ id: shoe.id, type: 'shoes' })}
-                            className="delete-button"
-                        >
-                            {clothesToDelete.some(item => item.id === shoe.id) ? 'Remove' : 'Select'}
-                        </button>
-                        )}
-                    </div>
+                    {filteredClothes(shoes).map((shoe, index) => (
+                        <div key={shoe.id} className="wardrobe-item">
+                            <img
+                                src={shoe.url}
+                                alt={`Shoe ${index + 1}`}
+                                className="wardrobe-image"
+                                onClick={() => handleDeleteClick({ id: shoe.id, type: 'shoes' })}
+                            />
+                            {isDelete && (
+                                <button
+                                    onClick={() => addToDeleteList({ id: shoe.id, type: 'shoes' })}
+                                    className="delete-button"
+                                >
+                                    {clothesToDelete.some(item => item.id === shoe.id) ? 'Remove' : 'Select'}
+                                </button>
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>
@@ -347,29 +372,29 @@ const Wardrobe = () => {
             {/* Top Layers Row */}
             <div className="wardrobe-row">
                 <div className='Add-Button'>
-                        <h3>Top Layers</h3>
-                        <button className="add-nav-link" onClick={() => handleShowModal('toplayer')}>
-                            Add
-                        </button>
+                    <h3>Top Layers</h3>
+                    <button className="add-nav-link" onClick={() => handleShowModal('toplayer')}>
+                        Add
+                    </button>
                 </div>
                 <div className="wardrobe-content-row">
                     {filteredClothes(topLayers).map((toplayer, index) => (
-                    <div key={toplayer.id} className="wardrobe-item">
-                        <img 
-                        src={toplayer.url} 
-                        alt={`TopLayer ${index + 1}`} 
-                        className="wardrobe-image"
-                        onClick={() => handleDeleteClick({ id: toplayer.id, type: 'toplayer' })}
-                        />
-                        {isDelete && (
-                        <button
-                            onClick={() => addToDeleteList({ id: toplayer.id, type: 'toplayer' })}
-                            className="delete-button"
-                        >
-                            {clothesToDelete.some(item => item.id === toplayer.id) ? 'Remove' : 'Select'}
-                        </button>
-                        )}
-                    </div>
+                        <div key={toplayer.id} className="wardrobe-item">
+                            <img
+                                src={toplayer.url}
+                                alt={`TopLayer ${index + 1}`}
+                                className="wardrobe-image"
+                                onClick={() => handleDeleteClick({ id: toplayer.id, type: 'toplayer' })}
+                            />
+                            {isDelete && (
+                                <button
+                                    onClick={() => addToDeleteList({ id: toplayer.id, type: 'toplayer' })}
+                                    className="delete-button"
+                                >
+                                    {clothesToDelete.some(item => item.id === toplayer.id) ? 'Remove' : 'Select'}
+                                </button>
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>

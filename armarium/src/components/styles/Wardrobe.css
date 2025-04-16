@@ -122,6 +122,7 @@
 
 /* Modal content */
 .modal-content {
+  height: 90vh; /* Sets the height of the modal */
   background-color: white;
   padding: 20px;
   border-radius: 10px;

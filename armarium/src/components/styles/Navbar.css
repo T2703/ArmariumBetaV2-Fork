@@ -151,3 +151,45 @@
   border: 1px solid #ccc; /* Adds a border */
   margin-left: 20px;
 }
+
+/* Hamburger menu for smaller screens */
+.navbar-toggle {
+  display: none; /* Hidden by default */
+  font-size: 1.5rem;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Dropdown menu for mobile */
+.navbar-nav.mobile {
+  display: none; /* Hidden by default */
+  flex-direction: column; /* Stack items vertically */
+  background-color: #a52a2a;
+  position: fixed;
+  top: 0; /* Position below the navbar */
+  left: 0;
+  width: 100%; /* Full width */
+  padding: 10px 0;
+  z-index: 999;
+  transition: top .3s ease; /* Smooth transition */
+}
+
+/* Show the mobile menu when active */
+.navbar-nav.mobile.active {
+  display: flex; /* Make the menu visible */
+  top: 50px; /* Adjust based on navbar height */
+  gap: 20px
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .navbar-nav {
+    display: none; /* Hide the menu by default */
+  }
+
+  .navbar-toggle {
+    display: block; /* Show the hamburger menu */
+  }
+}

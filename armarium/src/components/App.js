@@ -25,6 +25,7 @@ import ProtectedRoute from './ProtectedRoute';
 import EditOutfit from './clothing/EditOutfit';
 import FriendRequests from './profile/FriendRequests';
 import UserProfile from './profile/UserProfile';
+import ClothesLibSearch from './clothing/ClothesLibSearch';
 
 /**
  * The routers for linking to different pages.
@@ -62,6 +63,7 @@ function App() {
         <Route path="/styleboard/:id" element={<StyleboardPage />} />
         <Route path="/editOutfit/:outfitId" element={<EditOutfit />} />
         <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} />} />
+        <Route path="/add-clothes" element={<ProtectedRoute element={<ClothesLibSearch />} />} />
       </Routes>
     </Router>
   );
