@@ -143,7 +143,7 @@ function Outfit() {
     }
 
     if (topLayers.length === 0) {
-      const topLayersCollection = await getDocs(collection(db, `Users/${user.uid}/ItemsCollection/topLayer/items`));
+      const topLayersCollection = await getDocs(collection(db, `Users/${user.uid}/ItemsCollection/toplayer/items`));
       const topLayersData = topLayersCollection.docs.map(doc => doc.data().url);
       setTopLayers(topLayersData);
     }

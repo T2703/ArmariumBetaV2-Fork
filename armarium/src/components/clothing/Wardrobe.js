@@ -129,7 +129,7 @@ const Wardrobe = () => {
                     url: doc.data().url
                 }));
                 console.log("Accessory", accessoryData);
-                setTopLayers(accessoryData);
+                setAccessory(accessoryData);
             }
 
         } catch (error) {
@@ -177,7 +177,7 @@ const Wardrobe = () => {
                 setTopLayers(topLayers.filter((item) => item.id !== id));
             }
             else if (type === 'accessory') {
-                setTopLayers(accessory.filter((item) => item.id !== id));
+                setAccessory(accessory.filter((item) => item.id !== id));
             }
         }
 
