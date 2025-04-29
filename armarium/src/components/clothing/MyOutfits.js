@@ -13,11 +13,10 @@ function Outfits() {
   const auth = getAuth(); 
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
-  const [isDelete, setIsDelete] = useState(false);
-  const [outfitToDelete, setOutfitToDelete] = useState([]);
   const [styleboardState, setStyleboardState] = useState(false);
   const [selectedOutfits, setSelectedOutfits] = useState([]);
   const [showStyleboardModal, setShowStyleboardModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [styleboardName, setStyleboardName] = useState('');
   const [title, setTitle] = useState('');
   const navigate = useNavigate();
@@ -101,33 +100,16 @@ const createStyleboard = async () => {
 
     console.log("Styleboard created successfully:", styleboardName);
     setSelectedOutfits([]);
-    setStyleboardState(false);
+    setShowStyleboardModal(false);
   } catch (error) {
     console.error("Error creating styleboard:", error);
     alert("Failed to create styleboard. Please try again.");
   }
 };
 
- const addToStyleboardList = (outfits) => {
-  setSelectedOutfits(prevList => {
-      if (prevList.some(item => item.id === outfits.id)) {
-          return prevList.filter(item => item.id !== outfits.id);
-      } else {
-          return [...prevList, outfits];
-      }
-  });
-}
-
-const toggleStyleboard = () => {
-  if (styleboardState) {
-    setSelectedOutfits([]);
-  }
-  setStyleboardState(!styleboardState);
-}
-
 const handleDelete = async () => {
   const user = auth.currentUser;
-  if (!outfitToDelete.length) {
+  if (!selectedOutfits.length) {
     alert("No outfit has been selected.");
     return;
   }
@@ -135,38 +117,20 @@ const handleDelete = async () => {
   try {
     await new Promise((resolve) => setTimeout(resolve, DELAY));
 
-    for (const outfit of outfitToDelete) {
+    for (const outfit of selectedOutfits) {
       const outfitDocRef = doc(db, `Users/${user.uid}/Outfits`, outfit.id);
       await deleteDoc(outfitDocRef);
       console.log("Outfit deleted successfully:", outfit.id);
     }
 
-    setOutfitToDelete([]);  
-    setIsDelete(false);    
+    setSelectedOutfits([]);
     await fetchOutfits(user); 
+    setShowDeleteModal(false);
   } catch (error) {
     console.error("Error deleting outfit:", error);
     alert("Failed to delete outfit. Please try again.");
   }
 };
-
-const addToDeleteList = (outfits) => {
-  setOutfitToDelete(prevList => {
-      if (prevList.some(item => item.id === outfits.id)) {
-          return prevList.filter(item => item.id !== outfits.id);
-      } else {
-          return [...prevList, outfits];
-      }
-  });
-}
-
-const toggleDelete = () => {
-  if (isDelete) {
-    setOutfitToDelete([]);
-  }
-  setIsDelete(!isDelete);
-};
-
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -184,7 +148,7 @@ return (
   <div>
     <Navbar />
     <div className="center">
-    <h1 className="page-title">My Outfits</h1>
+      <h1 className="outfit-page-title">My Outfits</h1>
     </div>
 
     <div className="center">
@@ -198,31 +162,29 @@ return (
 
     <div className="center">
       <img
-        src={isDelete ? "trashcan.png" : "trashcan.png"}
-        alt={isDelete ? "Delete Mode" : "Default Mode"}
-        onClick={toggleDelete}
+        src="trashcan.png"
+        alt="Trashcan Button"
+        onClick={() => {
+          if (selectedOutfits.length > 0) {
+            setShowDeleteModal(true);
+          } else {
+            alert("No outfit has been selected.");
+          }
+        }}
         className="mode-image"
-        style={{ border: isDelete ? '2px solid red' : 'none'}}
       />
     </div>
 
     <div className="center">
-      {isDelete && (
-        <button className="styleboard-button" onClick={handleDelete}>
-          Confirm Delete
-        </button>
-      )}
-    </div>
-
-    <div className="center">
-    <button className="styleboard-button" onClick={toggleStyleboard}>
-      {styleboardState ? 'Cancel' : 'Create Styleboard'}
+    <button className="styleboard-button" onClick={() => {
+        if (selectedOutfits.length > 0) {
+          setShowStyleboardModal(true);
+        } else {
+          alert("No outfit has been selected.");
+        }
+      }}>
+      Create Styleboard
     </button>
-    {styleboardState && (
-      <button className="styleboard-button" onClick={() => setShowStyleboardModal(true)}>
-        Save Styleboard
-      </button>
-    )}
     </div>
     
     <div className="center">
@@ -237,13 +199,20 @@ return (
         {filteredOutfits().length > 0 ? (
           filteredOutfits().map((outfit) => (
             <li key={outfit.id} className="outfit-item"
-            onClick={() => styleboardState ? addToStyleboardList(outfit)
-              : isDelete ? addToDeleteList(outfit) : navigate(`/editOutfit/${outfit.id}`, { state: { outfitName: outfit.outfitName, outfitId: outfit.id}})}
+            onClick={() => navigate(`/editOutfit/${outfit.id}`, { state: { outfitName: outfit.outfitName, outfitId: outfit.id}})}
             style={{
-              border: outfitToDelete.some(item => item.id === outfit.id) ? '2px solid red'
-                : selectedOutfits.some(item => item.id === outfit.id) ? '2px solid blue'
+              border: selectedOutfits.some(item => item.id === outfit.id) ? '2px solid blue'
                 : '2px solid whitesmoke'
             }}>
+              <input type="checkbox" onClick={
+                (event) => {event.stopPropagation();
+                if (event.target.checked) {
+                  setSelectedOutfits((prevList) => [...prevList, outfit]);
+                } else {
+                  setSelectedOutfits((prevList) => prevList.filter((item) => item.id !== outfit.id));
+                }
+                }}>
+              </input>
               <div className="image-container">
                 <img 
                   src={outfit.topImageUrl} 
@@ -267,6 +236,32 @@ return (
         ) : (
           <p>No outfits found.</p>
         )}
+      
+      <div className={`modal ${showDeleteModal ? 'd-block' : 'd-none'}`} tabIndex="-1" role="dialog">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Delete Outfit</h5>
+              <button type="button" className="btn-close" onClick={() => setShowDeleteModal(false)}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <p>Are you sure you want to delete this outfit?</p>
+              <p>This action cannot be undone.</p>
+            </div>
+            
+            <div className="modal-footer">
+              <button type="button" className="btn btn-primary" onClick={handleDelete}>
+                Delete
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div className={`modal ${showStyleboardModal ? 'd-block' : 'd-none'}`} tabIndex="-1" role="dialog">
         <div className="modal-dialog">
           <div className="modal-content">
