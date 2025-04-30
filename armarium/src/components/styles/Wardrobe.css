@@ -160,3 +160,48 @@ body.modal-open {
 .modal-close:hover {
   background-color: #c98f8f; /* Darker background on hover */
 }
+
+  /* Media query for smaller screens */
+  @media (max-width: 768px) {
+    .wardrobe-row {
+      flex-direction: row; /* Stack items vertically */
+      gap: 10px; /* Reduce the gap between items */
+      padding: 10px; /* Reduce padding for smaller screens */
+      justify-content: left;
+    }
+  
+    .Add-Button {
+      display: flex;
+      flex-direction: column; /* Stack the "Add" button and title vertically */
+      padding-right: 10px; /* Add spacing to the right of the Add button */
+      height: 100px;
+    }
+  
+    .Add-Button h3{
+      font-size: .9rem;
+      margin-bottom: 5px;
+    }
+  
+    .add-nav-link{
+      width: 50px; /* Adjust width for smaller screens */
+      height: 50px; /* Adjust height for smaller screens */
+    }
+  
+    .wardrobe-content-row {
+      display: flex;
+      overflow-x: auto; /* Enable horizontal scrolling */
+      gap: 10px; /* Reduce the gap between items */
+      padding: 10px; /* Add padding for better spacing */
+    }
+  
+    .wardrobe-item {
+      flex: 0 0 auto; /* Prevent items from shrinking or growing */
+      width: 90px; /* Adjust width for smaller screens */
+      height: 90px; /* Adjust height for smaller screens */
+    }
+  
+    .wardrobe-image {
+      max-width: 100%; /* Ensure images fit within the container */
+      height: auto; /* Maintain aspect ratio */
+    }
+  }
