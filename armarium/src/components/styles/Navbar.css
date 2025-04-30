@@ -179,6 +179,7 @@
   padding: 10px 0;
   z-index: 999;
   transition: top .3s ease; /* Smooth transition */
+  align-items: center;
 }
 
 /* Show the mobile menu when active */
@@ -197,4 +198,16 @@
   .navbar-toggle {
     display: block; /* Show the hamburger menu */
   }
+
+  #signout-button{
+    margin-left: 0; /* Remove left margin */;
+  }
+
+  .nav-item{
+    margin-right: 0; /* Remove right margin */
+  }
+  #wardrobe-link{
+    margin-right: 0; /* Remove left margin */
+  }
+
 }

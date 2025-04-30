@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import './styles/Navbar.css';
 import Dropdown from './Dropdown';
@@ -24,6 +24,22 @@ function Navbar() {
     setMobileMenuOpen(!isMobileMenuOpen);
     console.log('Mobile menu state:', !isMobileMenuOpen); // Debugging
   };
+
+  // Automatically close the mobile menu when the screen size increases
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false); // Close the mobile menu
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <nav className="navbar">
