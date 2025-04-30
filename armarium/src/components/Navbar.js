@@ -27,7 +27,6 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <div className="container-fluid">
         <button className="navbar-toggle" onClick={toggleMobileMenu}>
           ☰ {/* Hamburger menu icon */}
         </button>
@@ -72,13 +71,11 @@ function Navbar() {
               Add Clothes
             </NavLink>
           </li>
-          <li className="nav-item">
-            <button className="nav-link btn btn-link" id="signout-button" onClick={handleLogout}>
+          <button className="nav-link btn btn-link" id="signout-button" onClick={handleLogout}>
               Sign Out
             </button>
-          </li>
         </div>
-      </div>
+
     </nav>
   );
 }
