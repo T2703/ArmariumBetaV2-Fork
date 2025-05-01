@@ -71,6 +71,35 @@ function FriendRequests() {
         fetchFriends();
     }, [currentUserId]);
 
+    // Add this useEffect to fetch friend requests
+useEffect(() => {
+    const fetchFriendRequests = async () => {
+        try {
+            if (!currentUserId) return;
+            
+            console.log('Fetching friend requests for user:', currentUserId);
+            const userRef = doc(db, 'Users', currentUserId);
+            const userDoc = await getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                console.log('User document data:', data);
+                const requests = data.friendRequests || [];
+                console.log('Found friend requests:', requests);
+                setFriendRequests(requests);
+            } else {
+                console.log('User document does not exist');
+                setFriendRequests([]);
+            }
+        } catch (error) {
+            console.error('Error fetching friend requests:', error);
+            setFriendRequests([]);
+        }
+    };
+
+    fetchFriendRequests();
+}, [currentUserId]);
+
     useEffect(() => {
         const fetchUsernames = async () => {
             try {
@@ -187,6 +216,11 @@ function FriendRequests() {
                 updateFriendRequestDetails(updatedRequests); // Update friendRequestDetails
                 return updatedRequests;
             });
+
+            setFriends(prevFriends => [
+                ...prevFriends, 
+                { id: requesterId, username: requesterUsername }
+            ]);
             console.log('Updated state to remove accepted friend request');
         } catch (error) {
             console.error('Error accepting friend request:', error);

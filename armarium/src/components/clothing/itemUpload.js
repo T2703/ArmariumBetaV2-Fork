@@ -174,7 +174,7 @@ const ItemUpload = ({type}) => {
                 color: item.color,
                 createdAt: serverTimestamp(),
               }).then(() => resolve(url));
-            });
+            }); 
           }
         );
       });
