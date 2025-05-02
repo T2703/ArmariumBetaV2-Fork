@@ -218,7 +218,7 @@ function EditOutfit() {
                     
                     {madeChanges && (
                         <>
-                            <button onClick={() => handleSaveChanges()} className="tab-button save-button">Save Changes</button>
+                            <button onClick={() => handleSaveChanges()} className="tab-button save-button">Save</button>
                             <button onClick={() => handleCancelChanges()} className="tab-button cancel-button">Cancel</button>
                         </>
                     )}                

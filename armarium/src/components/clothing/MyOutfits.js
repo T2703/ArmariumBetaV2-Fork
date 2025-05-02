@@ -157,10 +157,11 @@ return (
         placeholder="Search outfits by title"
         value={searchInput}
         onChange={handleSearchChange} 
+        className="search-input"
       />
     </div>
 
-    <div className="center">
+    {/* <div className="center">
       <img
         src="trashcan.png"
         alt="Trashcan Button"
@@ -173,28 +174,42 @@ return (
         }}
         className="mode-image"
       />
-    </div>
+    </div> */}
 
     <div className="center">
-    <button className="styleboard-button" onClick={() => {
+      <button className="delete-outfits-button" onClick={() => {
         if (selectedOutfits.length > 0) {
-          setShowStyleboardModal(true);
+          setShowDeleteModal(true);
         } else {
           alert("No outfit has been selected.");
         }
       }}>
-      Create Styleboard
-    </button>
+        Delete
+      </button>
+      <button className="styleboard-button" onClick={() => {
+          if (selectedOutfits.length > 0) {
+            setShowStyleboardModal(true);
+          } else {
+            alert("No outfit has been selected.");
+          }
+        }}>
+        Create Styleboard
+      </button>
     </div>
     
     <div className="center">
       <div className="outfit-outer">
         <ul className="outfits-list">
-        <li className="add-outfit center" onClick={() => navigate("/outfits")}>
+        {/* <li className="add-outfit center" onClick={() => navigate("/outfits")}>
           <div className="circle">
             <div className="horizontal-plus"></div>
             <div className="vertical-plus"></div>
           </div>
+        </li> */}
+
+        <li className="outfit-item" 
+          style={{ backgroundColor: '#a52a2a' }}
+          onClick={() => navigate("/outfits")}>
         </li>
         {filteredOutfits().length > 0 ? (
           filteredOutfits().map((outfit) => (
@@ -204,7 +219,9 @@ return (
               border: selectedOutfits.some(item => item.id === outfit.id) ? '2px solid blue'
                 : '2px solid whitesmoke'
             }}>
-              <input type="checkbox" onClick={
+              <input type="checkbox" 
+                className="select-box"
+                onClick={
                 (event) => {event.stopPropagation();
                 if (event.target.checked) {
                   setSelectedOutfits((prevList) => [...prevList, outfit]);
@@ -237,6 +254,8 @@ return (
           <p>No outfits found.</p>
         )}
       
+
+      {/* Delete Modal */}
       <div className={`modal ${showDeleteModal ? 'd-block' : 'd-none'}`} tabIndex="-1" role="dialog">
         <div className="modal-dialog">
           <div className="modal-content">
@@ -262,6 +281,7 @@ return (
         </div>
       </div>
       
+      {/* Styleboard Modal */}
       <div className={`modal ${showStyleboardModal ? 'd-block' : 'd-none'}`} tabIndex="-1" role="dialog">
         <div className="modal-dialog">
           <div className="modal-content">

@@ -103,24 +103,57 @@
   width: 100%;
 }
 
-@media (max-width: 769px) {
+.select-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.delete-outfits-button {
+  background-color: #a52a2a;
+  color: white;
+  border: none;
+  border-radius: 5px 5px 0px 0px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 769px) {
   .outer-outfit {
     width: 100%;
   }
 
-  .outfit-page-title {
-    font-size: 1px;
+  .select-box {
+    width: 10%;
+    height: 10%;
   }
-
-  /* .add-outfit {
-    width: auto;
-  } */
 }
 
 @media (max-width: 768px) {
-  .outfit-page-title {
-    color: #a52a2a;
-    font-size: 3em;
-    font-weight: bold;
+  /* .outfit-page-title {
+    font-size: 2em;
+  } */
+
+  .outfit-outer {
+    width: 100%;
+  }
+
+  .select-box {
+    width: 15%;
+    height: 15%;
+  }
+
+  .search-input {
+    width: 90%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #a52a2a;
+    border-radius: 5px;
+    margin: 10px auto;
+    display: block;
   }
 }
