@@ -6,8 +6,10 @@
 
 .page-title {
   color: #a52a2a;
-  font-size: 3em;
+  font-size: 1em;
   font-weight: bold;
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
 }
 
 .button-container {
