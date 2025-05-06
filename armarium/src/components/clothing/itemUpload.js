@@ -360,6 +360,7 @@ const ItemUpload = ({type}) => {
             <option value="bottom">Bottom</option>
             <option value="shoes">Shoes</option>
             <option value="toplayer">Top Layer</option>
+            <option value="accessory">Accessory</option>
           </select>
           <input
             type="text"
