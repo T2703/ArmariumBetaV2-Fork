@@ -140,73 +140,71 @@ const ItemUpload = ({type}) => {
       console.error('User is not authenticated');
       return;
     }
+  
     const user = auth.currentUser;
   
-    const uploadPromises = items.map(async (item, index) => {
-      if (!item.file) {
-        console.error(`Item ${index + 1} is missing a file.`);
-        return;
-      }
-  
-      if (!item.type) {
-        console.error(`Item ${index + 1} is missing a type.`);
-        return;
-      }
-  
-      // Upload the original image to Firebase Storage
-      const storageRef = ref(storage, `images/${item.file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, item.file);
-  
-      return new Promise((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progressValue = Math.round(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            );
-            setProgress((prev) => ({
-              ...prev,
-              [item.file.name]: progressValue,
-            }));
-          },
-          (error) => {
-            console.error(`Error uploading item ${index + 1}:`, error);
-            reject(error);
-          },
-          async () => {
-            try {
-              // Get the download URL of the uploaded image
-              const url = await getDownloadURL(uploadTask.snapshot.ref);
-  
-              // Call removeBackground for this image
-              const bgRemoveUrl = await removeBackground(url, item.file);
-  
-              // Save item details to Firestore
-              await addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${item.type}/items`), {
-                url: bgRemoveUrl || url, // Use background-removed URL if available, else original
-                title: item.title,
-                tags: item.tags.split(',').map((tag) => tag.trim()),
-                color: item.color,
-                createdAt: serverTimestamp(),
-              });
-  
-              resolve();
-            } catch (error) {
-              console.error(`Error processing item ${index + 1}:`, error);
-              reject(error);
-            }
-          }
-        );
-      });
-    });
-  
     try {
-      await Promise.all(uploadPromises);
-      console.log('All items uploaded successfully');
-      alert('All items uploaded successfully!');
+      // Iterate through the images in the `images` state
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
+  
+        if (!file) {
+          console.error(`Image at index ${i} is missing.`);
+          continue; // Skip this iteration if the file is missing
+        }
+  
+        // Upload the original image to Firebase Storage
+        const storageRef = ref(storage, `images/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+  
+        await new Promise((resolve, reject) => {
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progressValue = Math.round(
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              );
+              setProgress((prev) => ({
+                ...prev,
+                [file.name]: progressValue,
+              }));
+            },
+            (error) => {
+              console.error(`Error uploading image ${file.name}:`, error);
+              reject(error);
+            },
+            async () => {
+              try {
+                // Get the download URL of the uploaded image
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+  
+                // Call removeBackground for this image
+                const bgRemoveUrl = await removeBackground(url, file);
+  
+                // Save the processed image details to Firestore
+                await addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${items[i].type}/items`), {
+                  url: bgRemoveUrl || url, // Use background-removed URL if available, else original
+                  title:items[i].title,
+                  tags: items[i].tags.split(',').map(tag => tag.trim()),
+                  color: items[i].color,
+                  createdAt: serverTimestamp(),
+                });
+  
+                resolve();
+              } catch (error) {
+                console.error(`Error processing image ${file.name}:`, error);
+                reject(error);
+              }
+            }
+          );
+        });
+      }
+  
+      console.log('All images processed successfully');
+      alert('All images processed successfully!');
     } catch (error) {
-      console.error('Error uploading items:', error);
-      alert('Error uploading some items. Please try again.');
+      console.error('Error processing images:', error);
+      alert('Error processing some images. Please try again.');
     }
   };
 
