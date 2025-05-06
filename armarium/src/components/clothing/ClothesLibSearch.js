@@ -62,6 +62,16 @@ const AddClothesPage = () => {
             return;
         }
 
+        const categoryMap = {
+            tops: 'top',
+            bottoms: 'bottom',
+            shoes: 'shoes',
+            toplayers: 'toplayer',
+            accessories: 'accessory'
+        };
+
+        const wardrobeCategory = categoryMap[category] || category;
+
         const itemsToAdd = clothingItems[category].filter(item =>
             selectedItems.includes(item.id)
         );
@@ -75,7 +85,7 @@ const AddClothesPage = () => {
 
         try {
             for (const item of itemsToAdd) {
-                const collectionRef = collection(db, `Users/${user.uid}/ItemsCollection/${category}/items`);
+                const collectionRef = collection(db, `Users/${user.uid}/ItemsCollection/${wardrobeCategory}/items`);
                 const itemData = {
                     title: item.name,
                     url: item.image,
