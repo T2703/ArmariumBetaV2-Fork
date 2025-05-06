@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, doc, deleteDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc, setDoc, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../backend/firebaseConfig";
 import { db } from '../backend/firebaseConfig'; 
@@ -67,38 +67,15 @@ const createStyleboard = async () => {
   try {
     await new Promise((resolve) => setTimeout(resolve, DELAY));
 
-    for (const outfit of selectedOutfits) {
-      // Define the original outfit path and the new styleboard path
-      const originalOutfitPath = `Users/${user.uid}/Outfits/${outfit.id}/${outfit.outfitName}`;
-      const styleboardPath = `Users/Styleboards/${user.uid}/${styleboardName}/${outfit.outfitName}`;
+    const outfitRefs = selectedOutfits.map((outfit) =>
+      doc(db, `Users/${user.uid}/Outfits`, outfit.id)
+    );
 
-      console.log(`Reusing images from path: ${originalOutfitPath}`);
-      console.log(`Creating styleboard path: ${styleboardPath}`);
-
-      // Upload images to Firebase Storage
-      const imageTypes = ["topImageUrl", "bottomImageUrl", "shoesImageUrl"];
-      const uploadedImages = {};
-
-      for (const type of imageTypes) {
-        const imageUrl = outfit[type];
-        const fileName = type.replace("ImageUrl", ""); // e.g., "topImageUrl" -> "top"
-        const storageRef = ref(storage, `${styleboardPath}/${fileName}.jpg`);
-
-        // Fetch the image as a blob
-        const imageBlob = await fetch(imageUrl).then((res) => res.blob());
-
-        // Upload the image to Firebase Storage
-        await uploadBytes(storageRef, imageBlob);
-
-        // Get the download URL for the uploaded image
-        const downloadUrl = await getDownloadURL(storageRef);
-        uploadedImages[fileName] = downloadUrl;
-
-        console.log(`Uploaded ${fileName} image to: ${downloadUrl}`);
-      }
-
-      console.log(`Outfit "${outfit.outfitName}" added to styleboard at path: ${styleboardPath}`);
-    }
+    await addDoc(collection(db, `Users/${user.uid}/Styleboards`), {
+      name: styleboardName,
+      createdAt: new Date(),
+      outfits: outfitRefs,
+    });
 
     console.log("Styleboard created successfully:", styleboardName);
     setSelectedOutfits([]);
