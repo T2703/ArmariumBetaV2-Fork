@@ -161,8 +161,23 @@ body.modal-open {
   background-color: #c98f8f; /* Darker background on hover */
 }
 
+.delete-clothing-item{
+  padding: 4px 8px; /* Smaller padding for a compact button */
+  font-size: 0.8rem; /* Smaller font size */
+  background-color: #d8a7a7; /* Button background color */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Slightly rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+  margin: 0 5px; /* Add spacing between buttons */
+}
+.delete-clothing-item:hover {
+  background-color: #c98f8f; /* Darker background on hover */
+}
+
   /* Media query for smaller screens */
-  @media (max-width: 768px) {
+  @media (max-width: 844px) {
     .wardrobe-row {
       flex-direction: row; /* Stack items vertically */
       gap: 10px; /* Reduce the gap between items */
@@ -196,12 +211,17 @@ body.modal-open {
   
     .wardrobe-item {
       flex: 0 0 auto; /* Prevent items from shrinking or growing */
-      width: 90px; /* Adjust width for smaller screens */
-      height: 90px; /* Adjust height for smaller screens */
+      width: 100px; /* Adjust width for smaller screens */
+      height: 100px; /* Adjust height for smaller screens */
     }
   
     .wardrobe-image {
-      max-width: 100%; /* Ensure images fit within the container */
-      height: auto; /* Maintain aspect ratio */
+      width: 100px; /* Ensure images fit within the container */
+      height: 100px; /* Maintain aspect ratio */
+    }
+
+    .nav-link {
+      padding: 3px 8px; /* Smaller padding for smaller screens */
+      font-size: 0.8rem; /* Smaller font size */
     }
   }

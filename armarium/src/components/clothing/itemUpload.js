@@ -14,6 +14,7 @@ const ItemUpload = ({type}) => {
     { file: null, title: '', tags: '', color: '', type: '', preview: null },
   ]);
   const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [url, setUrl] = useState("");
   const [progress, setProgress] = useState(0);
   const [tags, setTags] = useState("");
@@ -140,6 +141,7 @@ const ItemUpload = ({type}) => {
       console.error('User is not authenticated');
       return;
     }
+    setIsLoading(true); // Set loading state to true
   
     const user = auth.currentUser;
   
@@ -201,9 +203,6 @@ const ItemUpload = ({type}) => {
       }
   
       console.log('All images processed successfully');
-      alert('All images processed successfully!');
-
-      setIsModalOpen(false); // Close the modal after successful upload
 
       window.location.reload(); // Reload the page to reflect changes
 
@@ -322,6 +321,10 @@ const ItemUpload = ({type}) => {
 
   return (
         <div className='Form-box'>
+          {isLoading && (
+            <div className="loading-message">
+              <p>processing your files... Please wait.</p>
+              </div>)}
           <div className='input-group'>
         <h2 style={{ textAlign: 'center' }}>Upload Items</h2>
         {items.map((item, index) => (

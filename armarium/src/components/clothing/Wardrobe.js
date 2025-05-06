@@ -236,7 +236,7 @@ const Wardrobe = () => {
     }
 
     return (
-        <div>
+        <div className="wardrobe-container">
             <Navbar />
             <div className="wardrobe-header">
                 <input
@@ -246,11 +246,11 @@ const Wardrobe = () => {
                     onChange={handleSearchChange}
                     className="wardrobe-search"
                 />
-                <button className="nav-link" onClick={toggleDelete}>
+                <button className="delete-clothing-item" onClick={toggleDelete}>
                     {isDelete ? 'Cancel' : 'Delete'}
                 </button>
                 {isDelete && (
-                    <button className="nav-link" onClick={handleDelete}>
+                    <button className="delete-clothing-item" onClick={handleDelete}>
                         Confirm Delete
                     </button>
                 )}
