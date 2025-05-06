@@ -25,7 +25,7 @@ const SwipeableImage = ({ image, handleSwipe, isLocked, isAllLocked, handleSwipe
 
   return (
     <motion.div
-      drag={!isLocked && itemLength > 1 ? "x" : false} // Enable drag only if not locked and there are multiple items
+      drag={!isLocked && itemLength > 1 ? "x" : false} 
       dragConstraints={{ left: -1000, right: 1000 }}
       style={{
         width: '100%',
@@ -58,7 +58,7 @@ const SwipeableImage = ({ image, handleSwipe, isLocked, isAllLocked, handleSwipe
         src={image}
         alt="Clothing item"
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-        onDragStart={(e) => e.preventDefault()} // Prevent default drag behavior
+        onDragStart={(e) => e.preventDefault()} 
       />
     </motion.div>
   );
@@ -309,7 +309,7 @@ function Outfit() {
     setIsLocked((prevState) => ({
       ...prevState,
       top: !prevState.top,
-      all: false, // Disable global lock when an individual lock is toggled
+      all: false, // Disable global lock 
     }));
   };
 
@@ -317,7 +317,7 @@ function Outfit() {
     setIsLocked((prevState) => ({
       ...prevState,
       bottom: !prevState.bottom,
-      all: false, // Disable global lock when an individual lock is toggled
+      all: false, 
     }));
   };
 
@@ -325,7 +325,7 @@ function Outfit() {
     setIsLocked((prevState) => ({
       ...prevState,
       shoes: !prevState.shoes,
-      all: false, // Disable global lock when an individual lock is toggled
+      all: false, 
     }));
   };
 
@@ -456,7 +456,7 @@ function Outfit() {
                             <img src={url} alt={`Top Layer ${index + 1}`} className="selected-image" />
                             <button
                               className="delete-btn"
-                              onClick={() => handleDeleteItem(url, 'topLayer')}
+                              onClick={() => handleDeleteItem(url, 'toplayer')}
                             >
                               X
                             </button>
@@ -536,7 +536,7 @@ function Outfit() {
               <div className="clothing-container">
                 <div className="lock-icon">
                   <img
-                    src={isLocked.top ? "lock.png" : "unlock.png"} // Dynamically set the image based on lock state
+                    src={isLocked.top ? "lock.png" : "unlock.png"} 
                     alt={isLocked.top ? "Lock Top" : "Unlock Top"}
                     onClick={toggleLockTop}
                     className="lock-image"
@@ -548,7 +548,7 @@ function Outfit() {
                     key={topIndex}
                     image={tops[topIndex]}
                     handleSwipe={handleSwipeTop}
-                    isLocked={isLocked.top || isLocked.all} // Ensure swipe is disabled when locked
+                    isLocked={isLocked.top || isLocked.all} 
                     isAllLocked={isLocked.all}
                     handleSwipeAll={handleSwipeAll}
                     itemLength={tops.length}
@@ -560,7 +560,7 @@ function Outfit() {
               <div className="clothing-container">
                 <div className="lock-icon">
                   <img
-                    src={isLocked.bottom ? "lock.png" : "unlock.png"} // Dynamically set the image based on lock state
+                    src={isLocked.bottom ? "lock.png" : "unlock.png"} 
                     alt={isLocked.bottom ? "Lock Bottom" : "Unlock Bottom"}
                     onClick={toggleLockBottom}
                     className="lock-image"
@@ -572,7 +572,7 @@ function Outfit() {
                     key={bottomIndex}
                     image={bottoms[bottomIndex]}
                     handleSwipe={handleSwipeBottom}
-                    isLocked={isLocked.bottom || isLocked.all} // Ensure swipe is disabled when locked
+                    isLocked={isLocked.bottom || isLocked.all} 
                     isAllLocked={isLocked.all}
                     handleSwipeAll={handleSwipeAll}
                     itemLength={bottoms.length}
@@ -589,7 +589,7 @@ function Outfit() {
                     key={topIndex}
                     image={tops[topIndex]}
                     handleSwipe={handleSwipeTop}
-                    isLocked={isLocked.top || isLocked.all} // Ensure swipe is disabled when locked
+                    isLocked={isLocked.top || isLocked.all} 
                     isAllLocked={isLocked.all}
                     handleSwipeAll={handleSwipeAll}
                     itemLength={tops.length}
@@ -621,7 +621,7 @@ function Outfit() {
                     key={bottomIndex}
                     image={bottoms[bottomIndex]}
                     handleSwipe={handleSwipeBottom}
-                    isLocked={isLocked.bottom || isLocked.all} // Ensure swipe is disabled when locked
+                    isLocked={isLocked.bottom || isLocked.all} 
                     isAllLocked={isLocked.all}
                     handleSwipeAll={handleSwipeAll}
                     itemLength={bottoms.length}
@@ -651,7 +651,7 @@ function Outfit() {
           <div className="clothing-container">
             <div className="lock-icon">
               <img
-                src={isLocked.shoes ? "lock.png" : "unlock.png"} // Dynamically set the image based on lock state
+                src={isLocked.shoes ? "lock.png" : "unlock.png"}
                 alt={isLocked.shoes ? "Lock Shoes" : "Unlock Shoes"}
                 onClick={toggleLockShoes}
                 className="lock-image"
@@ -663,7 +663,7 @@ function Outfit() {
                 key={shoesIndex}
                 image={shoes[shoesIndex]}
                 handleSwipe={handleSwipeShoes}
-                isLocked={isLocked.shoes || isLocked.all} // Ensure swipe is disabled when locked
+                isLocked={isLocked.shoes || isLocked.all}  
                 isAllLocked={isLocked.all}
                 handleSwipeAll={handleSwipeAll}
                 itemLength={shoes.length}

@@ -402,9 +402,9 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px; /* Add padding for spacing */
-  min-height: auto; /* Remove unnecessary height */
-  max-height: fit-content; /* Limit the height */
+  padding: 20px; 
+  min-height: auto; 
+  max-height: fit-content; 
 }
 
 .modal-header {
@@ -477,46 +477,46 @@ html, body {
 
 /* Resize lock and flip images */
 .lock-image, .flip-image {
-  width: 30px; /* Set the desired width */
-  height: 30px; /* Set the desired height */
+  width: 30px;
+  height: 30px; 
   cursor: pointer;
-  transition: transform 0.2s ease; /* Add hover effect */
-  margin: 5px; /* Add spacing if needed */
+  transition: transform 0.2s ease; 
+  margin: 5px;
 }
 
 .lock-image:hover, .flip-image:hover {
-  transform: scale(1.1); /* Slight zoom on hover */
-  opacity: 0.8; /* Slight transparency on hover */
+  transform: scale(1.1);
+  opacity: 0.8;
 }
 
 .outfits-title {
-  display: flex; /* Enable flexbox for the entire page */
-  justify-content: center; /* Center content vertically */
+  display: flex;
+  justify-content: center; 
   align-items: center;
-  gap: 10px; /* Add spacing between the title and the icon */
+  gap: 10px; 
 }
 
 .save-image {
   cursor: pointer;
-  transition: transform 0.2s ease; /* Add hover effect */
+  transition: transform 0.2s ease; 
 }
 
 .save-image:hover {
-  transform: scale(1.1); /* Slight zoom on hover */
-  opacity: 0.8; /* Slight transparency on hover */
+  transform: scale(1.1); 
+  opacity: 0.8;
 }
 
 
 .App circle-btn {
-  all: unset; /* Reset all inherited and default styles */
-  background-color: #ff4d4d; /* Red background */
+  all: unset; 
+  background-color: #ff4d4d; 
   color: white;
-  border: none; /* Remove any border */
-  outline: none; /* Remove focus outline */
-  border-radius: 50%; /* Make it a circle */
-  width: 40px; /* Equal width and height for a perfect circle */
+  border: none; 
+  outline: none;
+  border-radius: 50%;
+  width: 40px; 
   height: 40px;
-  font-size: 24px; /* Adjust font size for the "+" icon */
+  font-size: 24px; 
   display: flex;
   align-items: center;
   justify-content: center;
