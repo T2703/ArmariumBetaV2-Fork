@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ref, listAll, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "../backend/firebaseConfig";
 import Navbar from '../Navbar';
+import Loader from '../Loader';
 import '../styles/StyleboardsFormat.css'; 
 
 function Styleboards() {
@@ -172,11 +173,7 @@ const handleStyleboardClick = (styleboard) => {
 return (
   <div>
     {/* Loader overlay */}
-    {loading && (
-      <div className="loader-overlay">
-        <div className="loader"></div>
-      </div>
-    )}
+    <Loader loading={loading} />
     <Navbar /> 
   <div className={loading ? 'blurred' : ''}>
     <h1>My Styleboards</h1>
