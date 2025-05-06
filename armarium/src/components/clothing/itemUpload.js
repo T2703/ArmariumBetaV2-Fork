@@ -202,6 +202,16 @@ const ItemUpload = ({type}) => {
   
       console.log('All images processed successfully');
       alert('All images processed successfully!');
+
+      setIsModalOpen(false); // Close the modal after successful upload
+
+      window.location.reload(); // Reload the page to reflect changes
+
+      // Optionally, you can log an event to Firebase Analytics here
+      logEvent(analytics, 'item_uploaded', {
+        item_type: items[0].type,
+      });
+      console.log('Item uploaded and event logged');
     } catch (error) {
       console.error('Error processing images:', error);
       alert('Error processing some images. Please try again.');
