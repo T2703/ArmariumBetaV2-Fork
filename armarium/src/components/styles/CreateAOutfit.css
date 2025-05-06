@@ -1,42 +1,525 @@
-.App {
-    text-align: center;
-  }
-  
-  .outfit-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 600px; /* Set height to ensure it's visible */
-    margin: auto; /* Center the card */
-    border: 1px solid #ddd; /* Add border for visibility */
-    padding: 20px; /* Add padding */
-  }
-  
-  .swipeable-container {
-    width: 300px;
-    height: 300px;
-    margin: 20px;
-    overflow: hidden;
-    position: relative; /* Ensure absolute positioning works */
-  }
-  
-  .swipeable-container.top {
-    height: 50%; /* Adjust height for better visibility */
-    border-bottom: 1px solid #ddd; /* Add a divider between top and bottom */
-  }
-  
-  .swipeable-container.bottom {
-    height: 50%; /* Adjust height for better visibility */
-    border-bottom: 1px solid #ddd; /* Add a divider between top and bottom */
-  }
+html, body {
+  width: flex;
+  height: flex;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 
-  .swipeable-container.shoes {
-    height: 50%; /* Adjust height for better visibility */
-  }
-  
-  .swipeable-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Ensure the images fit properly */
-  }
+.App {
+  text-align: center;
+  padding: 10px;
+  width: 390px;
+  height: 844px;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+  box-sizing: border-box
+}
+
+.App h1 {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.standard-btn {
+  all: unset;
+  background-color: #ff4d4d;
+  color: white;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  width: 120px;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.standard-btn:hover {
+  background-color: #e63939;
+}
+
+.App .circle-btn {
+  all: unset;
+  background-color: #ff4d4d;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  line-height: 40px;
+}
+
+.circle-btn:hover {
+  background-color: #e63939;
+}
+
+.App .plus-icon {
+  font-size: 24px;
+  line-height: 40px;
+}
+
+.lock-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin: 5px 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  width: 120px;
+  text-align: center;
+}
+
+.lock-btn:hover {
+  background-color: #e63939;
+}
+
+.lock-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-height: calc(844px - 120px);
+  overflow-y: auto;
+  padding: 0;
+}
+
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  width: 90%;
+  height: fit-content;
+  min-width: 0;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+}
+
+.App .close-btn {
+  all: unset;
+  background-color: #ff4d4d;
+  color: white;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background-color: #e63939;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.swipeable-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+
+.swipeable-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.swipeable-container.topLayer,
+.swipeable-container.accessory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+}
+
+.swipeable-container.topLayer img,
+.swipeable-container.accessory img {
+  width: 100%;
+  height: 120px;
+  object-fit: contain;
+}
+
+.swipeable-container h3 {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.selected-items-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fff;
+  width: 150px;
+  height: 150px;
+}
+
+.selected-items-box h3 {
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.selected-items-box p {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.selected-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-height: 120px;
+  overflow-y: auto;
+  width: 100%;
+  justify-content: center;
+}
+
+.selected-items img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.modal-action-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  width: 120px;
+  text-align: center;
+}
+
+.modal-action-btn:hover {
+  background-color: #e63939;
+}
+
+.modal-action-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.App .done-btn {
+  all: unset;
+  background-color: #ff4d4d;
+  color: white;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.done-btn:hover {
+  background-color: #e63939;
+}
+
+.outfit-builder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  max-width: 200px;
+  margin: 0;
+}
+
+.outfit-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 480px;
+  border: 1px solid #ddd;
+  padding: 5px;
+  width: 100%;
+  margin: 0;
+}
+
+.swipeable-container {
+  width: 100%;
+  height: 160px;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+  padding: 5px;
+}
+
+.swipeable-container.top,
+.swipeable-container.bottom,
+.swipeable-container.shoes {
+  border-bottom: 1px solid #ddd;
+}
+
+.swipeable-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.overlay-container h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.overlay-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-height: 120px;
+  overflow-y: auto;
+  width: 100%;
+  justify-content: center;
+}
+
+.overlay-items p {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.overlay-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Save Outfit Modal */
+.modal-dialog {
+  max-width: 300px;
+  margin: 1.75rem auto;
+  max-height: fit-content;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px; /* Add padding for spacing */
+  min-height: auto; /* Remove unnecessary height */
+  max-height: fit-content; /* Limit the height */
+}
+
+.modal-header {
+  padding: 5px 0;
+}
+
+.modal-title {
+  font-size: 16px;
+}
+
+.btn-close {
+  font-size: 12px;
+  padding: 5px;
+}
+
+.modal-body {
+  padding: 5px 0;
+}
+
+.form-control {
+  font-size: 14px;
+  padding: 5px;
+}
+
+.modal-footer {
+  padding: 5px 0;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn {
+  font-size: 14px;
+  padding: 5px 15px;
+}
+
+.btn-danger {
+  background-color: #ff4d4d;
+  border-radius: 10px;
+  border-color: #ff4d4d;
+}
+
+.btn-danger:hover {
+  background-color: #ff4d4d;
+}
+
+.btn-secondary {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.btn-secondary:hover {
+  background-color: #f9f9f9 ;
+  border-color: #5a6268;
+}
+
+.App .delete-btn{
+  all: unset;
+  background-color: #ff4d4d;
+  color: white;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Resize lock and flip images */
+.lock-image, .flip-image {
+  width: 30px; /* Set the desired width */
+  height: 30px; /* Set the desired height */
+  cursor: pointer;
+  transition: transform 0.2s ease; /* Add hover effect */
+  margin: 5px; /* Add spacing if needed */
+}
+
+.lock-image:hover, .flip-image:hover {
+  transform: scale(1.1); /* Slight zoom on hover */
+  opacity: 0.8; /* Slight transparency on hover */
+}
+
+.outfits-title {
+  display: flex; /* Enable flexbox for the entire page */
+  justify-content: center; /* Center content vertically */
+  align-items: center;
+  gap: 10px; /* Add spacing between the title and the icon */
+}
+
+.save-image {
+  cursor: pointer;
+  transition: transform 0.2s ease; /* Add hover effect */
+}
+
+.save-image:hover {
+  transform: scale(1.1); /* Slight zoom on hover */
+  opacity: 0.8; /* Slight transparency on hover */
+}
+
+
+.App circle-btn {
+  all: unset; /* Reset all inherited and default styles */
+  background-color: #ff4d4d; /* Red background */
+  color: white;
+  border: none; /* Remove any border */
+  outline: none; /* Remove focus outline */
+  border-radius: 50%; /* Make it a circle */
+  width: 40px; /* Equal width and height for a perfect circle */
+  height: 40px;
+  font-size: 24px; /* Adjust font size for the "+" icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
