@@ -40,16 +40,19 @@ function Styleboards() {
       for (const folderRef of styleboardsSnapshot.prefixes) {
         const styleboardName = folderRef.name;
         console.log("Fetching styleboard:", styleboardName);
-        const outfits = [];
+        // const outfits = [];
+        let outfit = null;
   
         const outfitFoldersSnapshot = await listAll(folderRef);
   
-        for (const outfitFolderRef of outfitFoldersSnapshot.prefixes) {
-          const outfitName = outfitFolderRef.name;
+        // for (const outfitFolderRef of outfitFoldersSnapshot.prefixes) {
+        if (outfitFoldersSnapshot.prefixes.length > 0) {
+          const firstOutfitFolderRef = outfitFoldersSnapshot.prefixes[0];
+          const outfitName = firstOutfitFolderRef.name;
           console.log("Fetching outfit:", outfitName);
           const images = {};
   
-          const imageFilesSnapshot = await listAll(outfitFolderRef);
+          const imageFilesSnapshot = await listAll(firstOutfitFolderRef);
   
           for (const imageFileRef of imageFilesSnapshot.items) {
             const fileName = imageFileRef.name.replace(".jpg", "");
@@ -57,13 +60,13 @@ function Styleboards() {
             images[fileName] = downloadUrl; 
           }
   
-          outfits.push({ name: outfitName, images });
+          outfit = { name: outfitName, images };
         }
   
         styleboardsList.push({
           id: folderRef.name,
           styleboardName,
-          outfits,
+          outfits: outfit ? [outfit] : [],
         });
       }
   
