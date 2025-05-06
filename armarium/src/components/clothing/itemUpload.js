@@ -46,6 +46,12 @@ const ItemUpload = ({type}) => {
     updatedItems[index].file = file;
     updatedItems[index].preview = URL.createObjectURL(file);
     setItems(updatedItems);
+
+
+    // Update the images state
+    const updatedImages = [...images];
+    updatedImages[index] = file; // Set the file at the corresponding index
+    setImages(updatedImages);
   };
 
   useEffect(() => {
@@ -70,6 +76,7 @@ const ItemUpload = ({type}) => {
     const updatedItems = [...items];
     updatedItems[index][field] = value;
     setItems(updatedItems);
+
   };
 
   const addNewItem = () => {
@@ -168,7 +175,7 @@ const ItemUpload = ({type}) => {
           () => {
             getDownloadURL(uploadTask.snapshot.ref).then((url) => {
               setUrl(url);
-              removeBackground(url).then((bgRemoveUrl) => {
+              removeBackground(url, item.file).then((bgRemoveUrl) => {
                 addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${item.type}/items`), {
                   url: bgRemoveUrl || url,
                   title: item.title,
