@@ -26,6 +26,7 @@ function Styleboards() {
     }
   
     try {
+      setLoading(true);
       const userId = user.uid;
       const styleboardsPath = `Users/Styleboards/${userId}`;
       const styleboardsRef = ref(storage, styleboardsPath);
@@ -69,6 +70,7 @@ function Styleboards() {
       console.log("Fetched styleboards:", styleboardsList);
     } catch (error) {
       console.error("Error fetching styleboards from storage:", error);
+      setLoading(false);
     }
   };
 const handleSearchChange = (e) => {
@@ -169,7 +171,14 @@ const handleStyleboardClick = (styleboard) => {
 
 return (
   <div>
+    {/* Loader overlay */}
+    {loading && (
+      <div className="loader-overlay">
+        <div className="loader"></div>
+      </div>
+    )}
     <Navbar /> 
+  <div className={loading ? 'blurred' : ''}>
     <h1>My Styleboards</h1>
 
     <input
@@ -261,6 +270,7 @@ return (
         <p>No styleboards found.</p>
       )}
     </ul>
+  </div>
   </div>
 );
 }
