@@ -141,21 +141,22 @@ const ItemUpload = ({type}) => {
       return;
     }
     const user = auth.currentUser;
-
-    const uploadPromises = items.map((item, index) => {
+  
+    const uploadPromises = items.map(async (item, index) => {
       if (!item.file) {
         console.error(`Item ${index + 1} is missing a file.`);
-        return Promise.resolve(); // Skip this item
+        return;
       }
-
+  
       if (!item.type) {
         console.error(`Item ${index + 1} is missing a type.`);
-        return Promise.resolve(); // Skip this item
+        return;
       }
-
+  
+      // Upload the original image to Firebase Storage
       const storageRef = ref(storage, `images/${item.file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, item.file);
-
+  
       return new Promise((resolve, reject) => {
         uploadTask.on(
           'state_changed',
@@ -169,34 +170,44 @@ const ItemUpload = ({type}) => {
             }));
           },
           (error) => {
-            console.error(error);
+            console.error(`Error uploading item ${index + 1}:`, error);
             reject(error);
           },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-              setUrl(url);
-              removeBackground(url, item.file).then((bgRemoveUrl) => {
-                addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${item.type}/items`), {
-                  url: bgRemoveUrl || url,
-                  title: item.title,
-                  tags: item.tags.split(',').map((tag) => tag.trim()),
-                  color: item.color,
-                  createdAt: serverTimestamp(),
-                });
-              })
-            }); 
+          async () => {
+            try {
+              // Get the download URL of the uploaded image
+              const url = await getDownloadURL(uploadTask.snapshot.ref);
+  
+              // Call removeBackground for this image
+              const bgRemoveUrl = await removeBackground(url, item.file);
+  
+              // Save item details to Firestore
+              await addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${item.type}/items`), {
+                url: bgRemoveUrl || url, // Use background-removed URL if available, else original
+                title: item.title,
+                tags: item.tags.split(',').map((tag) => tag.trim()),
+                color: item.color,
+                createdAt: serverTimestamp(),
+              });
+  
+              resolve();
+            } catch (error) {
+              console.error(`Error processing item ${index + 1}:`, error);
+              reject(error);
+            }
           }
         );
       });
     });
-    Promise.all(uploadPromises)
-      .then(() => {
-        console.log('All items uploaded successfully');
-        alert('All items uploaded successfully!');
-      })
-      .catch((error) => {
-        console.error('Error uploading items:', error);
-      });
+  
+    try {
+      await Promise.all(uploadPromises);
+      console.log('All items uploaded successfully');
+      alert('All items uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading items:', error);
+      alert('Error uploading some items. Please try again.');
+    }
   };
 
   const checkNewUser = async (user) => {
