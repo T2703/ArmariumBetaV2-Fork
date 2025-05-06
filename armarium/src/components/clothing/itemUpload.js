@@ -167,19 +167,21 @@ const ItemUpload = ({type}) => {
           },
           () => {
             getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-              addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${item.type}/items`), {
-                url: url,
-                title: item.title,
-                tags: item.tags.split(',').map((tag) => tag.trim()),
-                color: item.color,
-                createdAt: serverTimestamp(),
-              }).then(() => resolve(url));
+              setUrl(url);
+              removeBackground(url).then((bgRemoveUrl) => {
+                addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${item.type}/items`), {
+                  url: bgRemoveUrl || url,
+                  title: item.title,
+                  tags: item.tags.split(',').map((tag) => tag.trim()),
+                  color: item.color,
+                  createdAt: serverTimestamp(),
+                });
+              })
             }); 
           }
         );
       });
     });
-
     Promise.all(uploadPromises)
       .then(() => {
         console.log('All items uploaded successfully');
