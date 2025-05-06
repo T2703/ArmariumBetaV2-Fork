@@ -224,7 +224,7 @@ const ItemUpload = ({type}) => {
     }
   }, []);
 
-  const removeBackground = async (imageUrl) => {
+  const removeBackground = async (imageUrl, file) => {
     const apiKey = "izMQbubK4NUk3p24uQn9kBvP"; // Consider moving this to a secure location (e.g., environment variables)
     const apiUrl = "https://api.remove.bg/v1.0/removebg";
     const accountUrl = "https://api.remove.bg/v1.0/account";
@@ -282,7 +282,7 @@ const ItemUpload = ({type}) => {
       const bgRemovedImageUrl = URL.createObjectURL(data);
       setBgRemove(bgRemovedImageUrl);
   
-      const storageRef = ref(storage, `images/bg-removed-${images.name}`);
+      const storageRef = ref(storage, `images/bg-removed-${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, data);
   
       return new Promise((resolve, reject) => {
