@@ -1,11 +1,14 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
+import OutfitFromStyleboard from './OutfitFromStyleboard';
+import '../styles/MyOutfits.css';
 
 function StyleboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { styleboard } = location.state || {};
+  const [selectedOutfits, setSelectedOutfits] = React.useState([]);
 
   if (!styleboard) {
     return <p>No styleboard data found.</p>;
@@ -17,19 +20,17 @@ function StyleboardPage() {
       <button onClick={() => navigate(-1)} style={{ marginBottom: '20px' }}>
         Back to Styleboards
       </button>
-      <h1>{styleboard.styleboardName}</h1>
-      <ul className="outfits-list">
-        {styleboard.outfits.map((outfit) => (
-          <li key={outfit.name} className="outfit-item">
-            <h2>{outfit.name}</h2>
-            <div className="image-container">
-              {outfit.images.top && <img src={outfit.images.top} alt="Top" />}
-              {outfit.images.bottom && <img src={outfit.images.bottom} alt="Bottom" />}
-              {outfit.images.shoes && <img src={outfit.images.shoes} alt="Shoes" />}
-            </div>
-          </li>
-        ))}
-      </ul>
+
+      <div className="center"><h1>{styleboard.styleboardName}</h1></div>
+      
+      <div className="center">
+        <div className="outfit-outer">
+          <div className="outfit-center">
+            { console.log("From StyleboardPage.js: ", styleboard.outfits)}
+            <OutfitFromStyleboard outfits={styleboard.outfits} selectedOutfits={selectedOutfits} setSelectedOutfits={setSelectedOutfits} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { db } from '../backend/firebaseConfig';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
+import OutfitsList from './OutfitsList';
 import '../styles/MyOutfits.css';
 
 function Outfits() {
@@ -41,11 +42,12 @@ function Outfits() {
   };
 
   const filteredOutfits = () => {
-    if (!outfits) return []; 
-    return outfits.filter(outfit => {
+    if (!outfits) return [];
+    let fOutfits = outfits.filter(outfit => {
       const matchesTitle = outfit.outfitName && outfit.outfitName.toLowerCase().includes(searchInput.toLowerCase());
       return matchesTitle;
     });
+    return fOutfits;
 };
 
 
@@ -161,21 +163,6 @@ return (
       />
     </div>
 
-    {/* <div className="center">
-      <img
-        src="trashcan.png"
-        alt="Trashcan Button"
-        onClick={() => {
-          if (selectedOutfits.length > 0) {
-            setShowDeleteModal(true);
-          } else {
-            alert("No outfit has been selected.");
-          }
-        }}
-        className="mode-image"
-      />
-    </div> */}
-
     <div className="center">
       <button className="delete-outfits-button" onClick={() => {
         if (selectedOutfits.length > 0) {
@@ -199,61 +186,8 @@ return (
     
     <div className="center">
       <div className="outfit-outer">
-        <ul className="outfits-list">
-        {/* <li className="add-outfit center" onClick={() => navigate("/outfits")}>
-          <div className="circle">
-            <div className="horizontal-plus"></div>
-            <div className="vertical-plus"></div>
-          </div>
-        </li> */}
 
-        <li className="outfit-item" 
-          style={{ backgroundColor: '#a52a2a' }}
-          onClick={() => navigate("/outfits")}>
-        </li>
-        {filteredOutfits().length > 0 ? (
-          filteredOutfits().map((outfit) => (
-            <li key={outfit.id} className="outfit-item"
-            onClick={() => navigate(`/editOutfit/${outfit.id}`, { state: { outfitName: outfit.outfitName, outfitId: outfit.id}})}
-            style={{
-              border: selectedOutfits.some(item => item.id === outfit.id) ? '2px solid blue'
-                : '2px solid whitesmoke'
-            }}>
-              <input type="checkbox" 
-                className="select-box"
-                onClick={
-                (event) => {event.stopPropagation();
-                if (event.target.checked) {
-                  setSelectedOutfits((prevList) => [...prevList, outfit]);
-                } else {
-                  setSelectedOutfits((prevList) => prevList.filter((item) => item.id !== outfit.id));
-                }
-                }}>
-              </input>
-              <div className="image-container">
-                <img 
-                  src={outfit.topImageUrl} 
-                  alt="Top"
-                  className="outfit-image center"
-                />
-                <img 
-                  src={outfit.bottomImageUrl} 
-                  alt="Bottom" 
-                  className="outfit-image center"
-                />
-                <img 
-                  src={outfit.shoesImageUrl} 
-                  alt="Shoes" 
-                  className="outfit-image center"
-                />
-              </div>
-              <h1 className="outfit-title">{outfit.outfitName}</h1>
-            </li>
-          ))
-        ) : (
-          <p>No outfits found.</p>
-        )}
-      
+      <OutfitsList outfits={filteredOutfits()} selectedOutfits={selectedOutfits} setSelectedOutfits={setSelectedOutfits} />
 
       {/* Delete Modal */}
       <div className={`modal ${showDeleteModal ? 'd-block' : 'd-none'}`} tabIndex="-1" role="dialog">
@@ -312,7 +246,6 @@ return (
             </div>
           </div>
         </div>
-      </ul>
       </div>
     </div>
   </div>
