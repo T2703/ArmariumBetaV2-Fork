@@ -67,7 +67,7 @@ describe('Login Page Tests', function () {
   
     // Enter valid credentials
     await slowType(emailInput, 'admin@gmail.com', 200);
-    await passwordInput.click();
+        await passwordInput.click();
     await passwordInput.clear();
     await slowType(passwordInput, 'adminadmin', 200);
     await loginButton.click();
