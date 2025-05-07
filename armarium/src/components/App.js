@@ -20,6 +20,8 @@ import Ocassions from './Questionare/Ocassions';
 import EditClothing from './clothing/EditClothing';
 import Styleboards from './clothing/Styleboards';
 import StyleboardPage from './clothing/StyleboardPage';
+import Explore from './clothing/Explore';
+import ExplorePage from './clothing/ExplorePage';
 import Outfits from './clothing/MyOutfits';
 import ProtectedRoute from './ProtectedRoute';
 import EditOutfit from './clothing/EditOutfit';
@@ -61,6 +63,8 @@ function App() {
         <Route path="/wardrobeStyleboards/:userId" element={<ProtectedRoute element={<Styleboards />} />} />
         <Route path="/" element={<Styleboards />} />
         <Route path="/styleboard/:id" element={<StyleboardPage />} />
+        <Route path="/explore" element={<ProtectedRoute element={<Explore />} />} />
+        <Route path="/explore/:id" element={<ProtectedRoute element={<ExplorePage />} />} />
         <Route path="/editOutfit/:outfitId" element={<EditOutfit />} />
         <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} />} />
         <Route path="/add-clothes" element={<ProtectedRoute element={<ClothesLibSearch />} />} />

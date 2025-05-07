@@ -52,6 +52,11 @@ function Navbar() {
             </NavLink>
           </li>
           <li className="nav-item">
+            <NavLink className="nav-link" id="explore-link" to="/explore" end>
+              Explore
+            </NavLink>
+          </li>
+          <li className="nav-item">
             <a
               className="nav-link"
               id="upload-link"
