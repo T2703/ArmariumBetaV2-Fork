@@ -14,6 +14,7 @@ const ItemUpload = ({type}) => {
     { file: null, title: '', tags: '', color: '', type: '', preview: null },
   ]);
   const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [url, setUrl] = useState("");
   const [progress, setProgress] = useState(0);
   const [tags, setTags] = useState("");
@@ -46,6 +47,12 @@ const ItemUpload = ({type}) => {
     updatedItems[index].file = file;
     updatedItems[index].preview = URL.createObjectURL(file);
     setItems(updatedItems);
+
+
+    // Update the images state
+    const updatedImages = [...images];
+    updatedImages[index] = file; // Set the file at the corresponding index
+    setImages(updatedImages);
   };
 
   useEffect(() => {
@@ -70,6 +77,7 @@ const ItemUpload = ({type}) => {
     const updatedItems = [...items];
     updatedItems[index][field] = value;
     setItems(updatedItems);
+
   };
 
   const addNewItem = () => {
@@ -133,61 +141,80 @@ const ItemUpload = ({type}) => {
       console.error('User is not authenticated');
       return;
     }
+    setIsLoading(true); // Set loading state to true
+  
     const user = auth.currentUser;
-
-    const uploadPromises = items.map((item, index) => {
-      if (!item.file) {
-        console.error(`Item ${index + 1} is missing a file.`);
-        return Promise.resolve(); // Skip this item
+  
+    try {
+      // Iterate through the images in the `images` state
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
+  
+        if (!file) {
+          console.error(`Image at index ${i} is missing.`);
+          continue; // Skip this iteration if the file is missing
+        }
+  
+        // Upload the original image to Firebase Storage
+        const storageRef = ref(storage, `images/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+  
+        await new Promise((resolve, reject) => {
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progressValue = Math.round(
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              );
+              setProgress((prev) => ({
+                ...prev,
+                [file.name]: progressValue,
+              }));
+            },
+            (error) => {
+              console.error(`Error uploading image ${file.name}:`, error);
+              reject(error);
+            },
+            async () => {
+              try {
+                // Get the download URL of the uploaded image
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+  
+                // Call removeBackground for this image
+                const bgRemoveUrl = await removeBackground(url, file);
+  
+                // Save the processed image details to Firestore
+                await addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${items[i].type}/items`), {
+                  url: bgRemoveUrl || url, // Use background-removed URL if available, else original
+                  title:items[i].title,
+                  tags: items[i].tags.split(',').map(tag => tag.trim()),
+                  color: items[i].color,
+                  createdAt: serverTimestamp(),
+                });
+  
+                resolve();
+              } catch (error) {
+                console.error(`Error processing image ${file.name}:`, error);
+                reject(error);
+              }
+            }
+          );
+        });
       }
+  
+      console.log('All images processed successfully');
 
-      if (!item.type) {
-        console.error(`Item ${index + 1} is missing a type.`);
-        return Promise.resolve(); // Skip this item
-      }
+      window.location.reload(); // Reload the page to reflect changes
 
-      const storageRef = ref(storage, `images/${item.file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, item.file);
-
-      return new Promise((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progressValue = Math.round(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            );
-            setProgress((prev) => ({
-              ...prev,
-              [item.file.name]: progressValue,
-            }));
-          },
-          (error) => {
-            console.error(error);
-            reject(error);
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-              addDoc(collection(db, `Users/${user.uid}/ItemsCollection/${item.type}/items`), {
-                url: url,
-                title: item.title,
-                tags: item.tags.split(',').map((tag) => tag.trim()),
-                color: item.color,
-                createdAt: serverTimestamp(),
-              }).then(() => resolve(url));
-            }); 
-          }
-        );
+      // Optionally, you can log an event to Firebase Analytics here
+      logEvent(analytics, 'item_uploaded', {
+        item_type: items[0].type,
       });
-    });
-
-    Promise.all(uploadPromises)
-      .then(() => {
-        console.log('All items uploaded successfully');
-        alert('All items uploaded successfully!');
-      })
-      .catch((error) => {
-        console.error('Error uploading items:', error);
-      });
+      console.log('Item uploaded and event logged');
+    } catch (error) {
+      console.error('Error processing images:', error);
+      alert('Error processing some images. Please try again.');
+    }
   };
 
   const checkNewUser = async (user) => {
@@ -215,7 +242,7 @@ const ItemUpload = ({type}) => {
     }
   }, []);
 
-  const removeBackground = async (imageUrl) => {
+  const removeBackground = async (imageUrl, file) => {
     const apiKey = "izMQbubK4NUk3p24uQn9kBvP"; // Consider moving this to a secure location (e.g., environment variables)
     const apiUrl = "https://api.remove.bg/v1.0/removebg";
     const accountUrl = "https://api.remove.bg/v1.0/account";
@@ -273,7 +300,7 @@ const ItemUpload = ({type}) => {
       const bgRemovedImageUrl = URL.createObjectURL(data);
       setBgRemove(bgRemovedImageUrl);
   
-      const storageRef = ref(storage, `images/bg-removed-${images.name}`);
+      const storageRef = ref(storage, `images/bg-removed-${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, data);
   
       return new Promise((resolve, reject) => {
@@ -294,6 +321,10 @@ const ItemUpload = ({type}) => {
 
   return (
         <div className='Form-box'>
+          {isLoading && (
+            <div className="loading-message">
+              <p>processing your files... Please wait.</p>
+              </div>)}
           <div className='input-group'>
         <h2 style={{ textAlign: 'center' }}>Upload Items</h2>
         {items.map((item, index) => (
