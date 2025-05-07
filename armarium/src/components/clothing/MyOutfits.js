@@ -6,6 +6,7 @@ import { db } from '../backend/firebaseConfig';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
+import Loader from '../Loader';
 import '../styles/MyOutfits.css';
 
 function Outfits() {
@@ -24,6 +25,7 @@ function Outfits() {
 
   const fetchOutfits = async (user) => {
     if (user) {
+      setLoading(true);
       const userId = user.uid;  
       const q = query(collection(db, 'Users', userId, 'Outfits'));
       
@@ -35,6 +37,7 @@ function Outfits() {
       setOutfits(outfitsList);
       setTitle(querySnapshot.outfitName);
       console.log(outfitsList)
+      setLoading(false);
     } else {
       console.log("No user logged in");
     }
@@ -129,6 +132,7 @@ const handleDelete = async () => {
   } catch (error) {
     console.error("Error deleting outfit:", error);
     alert("Failed to delete outfit. Please try again.");
+
   }
 };
 
@@ -146,6 +150,8 @@ const handleDelete = async () => {
 
 return (
   <div>
+    <Loader loading={loading} />
+
     <Navbar />
     <div className="center">
       <h1 className="outfit-page-title">My Outfits</h1>
