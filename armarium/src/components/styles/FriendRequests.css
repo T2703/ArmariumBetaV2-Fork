@@ -6,7 +6,7 @@
     margin: 4px 0;
     max-height: 150px;
     overflow-y: auto;
-    width: 100%;
+    width: 90%;
     position: absolute;
     z-index: 1000;
   }
