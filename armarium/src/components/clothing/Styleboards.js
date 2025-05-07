@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../backend/firebaseConfig'; 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { ref, listAll, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "../backend/firebaseConfig";
 import Navbar from '../Navbar';
-import '../styles/StyleboardsFormat.css'; 
+import Loader from '../Loader';
+import '../styles/StyleboardsFormat.css';
+import '../styles/MyOutfits.css';
 
 function Styleboards() {
   const [styleboards, setStyleboards] = useState([]);
-  const auth = getAuth(); 
+  const auth = getAuth();
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
   const [isDelete, setIsDelete] = useState(false);
@@ -28,43 +30,34 @@ function Styleboards() {
     try {
       setLoading(true);
       const userId = user.uid;
-      const styleboardsPath = `Users/Styleboards/${userId}`;
-      const styleboardsRef = ref(storage, styleboardsPath);
+      const q = query(collection(db, 'Users', userId, 'Styleboards'));
+      const querySnapshot = await getDocs(q);
+
+      const styleboardsList = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const styleboardData = doc.data();
   
-      const styleboardsList = [];
-      const styleboardsSnapshot = await listAll(styleboardsRef);
+          // Fetch the outfits referenced in the styleboard
+          const outfits = await Promise.all(
+            styleboardData.outfits.map(async (outfitRef) => {
+              const outfitDoc = await getDoc(outfitRef); // Fetch the document
+              if (outfitDoc.exists()) {
+                return { id: outfitDoc.id, ...outfitDoc.data() }; // Return the outfit data
+              } else {
+                console.warn(`Outfit document not found: ${outfitRef.path}`);
+                return null;
+              }
+            })
+          );
   
-      console.log("Styleboards snapshot:", styleboardsSnapshot);
-  
-      for (const folderRef of styleboardsSnapshot.prefixes) {
-        const styleboardName = folderRef.name;
-        console.log("Fetching styleboard:", styleboardName);
-        const outfits = [];
-  
-        const outfitFoldersSnapshot = await listAll(folderRef);
-  
-        for (const outfitFolderRef of outfitFoldersSnapshot.prefixes) {
-          const outfitName = outfitFolderRef.name;
-          console.log("Fetching outfit:", outfitName);
-          const images = {};
-  
-          const imageFilesSnapshot = await listAll(outfitFolderRef);
-  
-          for (const imageFileRef of imageFilesSnapshot.items) {
-            const fileName = imageFileRef.name.replace(".jpg", "");
-            const downloadUrl = await getDownloadURL(imageFileRef); 
-            images[fileName] = downloadUrl; 
-          }
-  
-          outfits.push({ name: outfitName, images });
-        }
-  
-        styleboardsList.push({
-          id: folderRef.name,
-          styleboardName,
-          outfits,
-        });
-      }
+          // Filter out any null outfits (in case a referenced document doesn't exist)
+          return {
+            id: doc.id,
+            ...styleboardData,
+            outfits: outfits.filter((outfit) => outfit !== null),
+          };
+        })
+      );
   
       setStyleboards(styleboardsList);
       console.log("Fetched styleboards:", styleboardsList);
@@ -73,6 +66,7 @@ function Styleboards() {
       setLoading(false);
     }
   };
+
 const handleSearchChange = (e) => {
   const inputValue = e.target.value.toLowerCase();
   setSearchInput(inputValue);
@@ -172,11 +166,7 @@ const handleStyleboardClick = (styleboard) => {
 return (
   <div>
     {/* Loader overlay */}
-    {loading && (
-      <div className="loader-overlay">
-        <div className="loader"></div>
-      </div>
-    )}
+    <Loader loading={loading} />
     <Navbar /> 
   <div className={loading ? 'blurred' : ''}>
     <h1>My Styleboards</h1>
@@ -197,80 +187,45 @@ return (
       </button>
     )}
 
-
-    <ul className="styleboards-list">
-      {styleboards.length > 0 ? (
-        styleboards.map((styleboard) => {
-          const isSelected = styleboardToDelete.some((item) => item.id === styleboard.id); 
-
-          return (
-            <li
-              key={styleboard.id}
-              className="styleboard-item"
-              onClick={() => {
-                if (!isDelete) {
-                  console.log("Navigating to styleboard:", styleboard.id); 
-                  handleStyleboardClick(styleboard);
-                }
-              }}
-              style={{
-                cursor: 'pointer',
-                border: isSelected ? '2px solid red' : '1px solid #ccc', 
-                padding: '10px',
-                margin: '10px',
-              }}
-            >
-              <div className="image-container">
-                <h1>{styleboard.styleboardName}</h1>
-                {styleboard.outfits.length > 0 && (
-                  <div>
-                    {styleboard.outfits[0].images.top && (
-                      <img
-                        src={styleboard.outfits[0].images.top}
-                        alt="Top"
-                        className="styleboard-image"
-                      />
-                    )}
-                    {styleboard.outfits[0].images.bottom ? (
-                      <img
-                        src={styleboard.outfits[0].images.bottom}
-                        alt="Bottom"
-                        className="styleboard-image"
-                      />
-                    ) : (
-                      <p>No bottom image available</p>
-                    )}
-                    {styleboard.outfits[0].images.shoes && (
-                      <img
-                        src={styleboard.outfits[0].images.shoes}
-                        alt="Shoes"
-                        className="styleboard-image"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-              {isDelete && (
-                <div
-                  onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking the checkbox
-                  style={{ display: 'inline-block', marginTop: '10px' }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected} 
-                    onChange={() => addToDeleteList(styleboard)} // Toggle selection
+    <div className="center">
+      <div className="outfit-outer">
+        <div className="outfit-center"></div>
+          {styleboards.length > 0 ? (
+            <ul className="outfits-list">
+              {styleboards.map((styleboard) => (
+              <li
+                key={styleboard.id}
+                className="outfit-item"
+                onClick={() =>
+                  handleStyleboardClick(styleboard)
+                }>
+                <div className="image-container">
+                  <img
+                    src={styleboard.outfits[0].topImageUrl}
+                    alt="Top"
+                    className="outfit-image center"
                   />
-                  <label style={{ marginLeft: '5px' }}>Select for Deletion</label>
+                  <img
+                    src={styleboard.outfits[0].bottomImageUrl}
+                    alt="Bottom"
+                    className="outfit-image center"
+                  />
+                  <img
+                    src={styleboard.outfits[0].shoesImageUrl}
+                    alt="Shoes"
+                    className="outfit-image center"
+                  />
                 </div>
-              )}
-            </li>
-          );
-        })
-      ) : (
-        <p>No styleboards found.</p>
-      )}
-    </ul>
-  </div>
+                <h1 className="outfit-title">{styleboard.name}</h1>
+              </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No styleboards found.</p>
+          )}
+        </div>
+      </div>
+    </div>
   </div>
 );
 }

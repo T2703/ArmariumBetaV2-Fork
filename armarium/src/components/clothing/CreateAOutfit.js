@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform, useAnimation } from "framer-motio
 import '../styles/CreateAOutfit.css';
 import '../styles/Modal.css';
 import Navbar from '../Navbar';
+import Loader from '../Loader';
 import { collection, getDoc, getDocs, addDoc, getFirestore, doc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -127,6 +128,7 @@ function Outfit() {
   ]);
 
   const fetchData = async (user) => {
+    setLoading(true);
     await new Promise(resolve => setTimeout(resolve, DELAY));
     if (tops.length === 0) {
       const topsCollection = await getDocs(collection(db, `Users/${user.uid}/ItemsCollection/top/items`));
@@ -364,6 +366,7 @@ function Outfit() {
   return (
     <div>
       <Navbar />
+      <Loader loading={loading} />
       <div className="App" id="homepage">
         <h1 className="outfits-title">
           Outfits

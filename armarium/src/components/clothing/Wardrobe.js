@@ -4,9 +4,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
+import Loader from '../Loader';
 import ItemUpload from './itemUpload';
 import ClothesLibSearch from './ClothesLibSearch';
-import '../styles/Loading.css';
 import '../styles/Wardrobe.css';
 import '../styles/Forms.css';
 import { Center } from 'framer/render/presentation/Frame/DeprecatedFrame.js';
@@ -255,17 +255,14 @@ const Wardrobe = () => {
         const inputValue = e.target.value.toLowerCase();
         setSearchInput(inputValue);
     };
-
-    if (loading) {
-        return <div><Navbar /> <div className="loader"></div></div>;
-    }
-
+    
     if (error) {
         return <div><Navbar /> Error: {error.message}</div>;
     }
 
     return (
-        <div>
+        <div className="wardrobe-container">
+            <Loader loading={loading} />
             <Navbar />
             <div className="wardrobe-header">
                 <input
@@ -275,11 +272,11 @@ const Wardrobe = () => {
                     onChange={handleSearchChange}
                     className="wardrobe-search"
                 />
-                <button className="nav-link" onClick={toggleDelete}>
+                <button className="delete-clothing-item" onClick={toggleDelete}>
                     {isDelete ? 'Cancel' : 'Delete'}
                 </button>
                 {isDelete && (
-                    <button className="nav-link" onClick={handleDelete}>
+                    <button className="delete-clothing-item" onClick={handleDelete}>
                         Confirm Delete
                     </button>
                 )}

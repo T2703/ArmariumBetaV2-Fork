@@ -71,18 +71,6 @@
     text-align:center;
   }
 
-  .styleboard-button {
-    background-color: #a52a2a;
-    color: white;
-    border: none;
-    border-radius: 5px 5px 0px 0px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  }
-
   .add-nav-link {
     width: 100px; /* Width of the square */
     height: 100px; /* Height of the square */
@@ -160,3 +148,68 @@ body.modal-open {
 .modal-close:hover {
   background-color: #c98f8f; /* Darker background on hover */
 }
+
+.delete-clothing-item{
+  padding: 4px 8px; /* Smaller padding for a compact button */
+  font-size: 0.8rem; /* Smaller font size */
+  background-color: #d8a7a7; /* Button background color */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Slightly rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+  margin: 0 5px; /* Add spacing between buttons */
+}
+.delete-clothing-item:hover {
+  background-color: #c98f8f; /* Darker background on hover */
+}
+
+  /* Media query for smaller screens */
+  @media (max-width: 844px) {
+    .wardrobe-row {
+      flex-direction: row; /* Stack items vertically */
+      gap: 10px; /* Reduce the gap between items */
+      padding: 10px; /* Reduce padding for smaller screens */
+      justify-content: left;
+    }
+  
+    .Add-Button {
+      display: flex;
+      flex-direction: column; /* Stack the "Add" button and title vertically */
+      padding-right: 10px; /* Add spacing to the right of the Add button */
+      height: 100px;
+    }
+  
+    .Add-Button h3{
+      font-size: .9rem;
+      margin-bottom: 5px;
+    }
+  
+    .add-nav-link{
+      width: 50px; /* Adjust width for smaller screens */
+      height: 50px; /* Adjust height for smaller screens */
+    }
+  
+    .wardrobe-content-row {
+      display: flex;
+      overflow-x: auto; /* Enable horizontal scrolling */
+      gap: 10px; /* Reduce the gap between items */
+      padding: 10px; /* Add padding for better spacing */
+    }
+  
+    .wardrobe-item {
+      flex: 0 0 auto; /* Prevent items from shrinking or growing */
+      width: 100px; /* Adjust width for smaller screens */
+      height: 100px; /* Adjust height for smaller screens */
+    }
+  
+    .wardrobe-image {
+      width: 100px; /* Ensure images fit within the container */
+      height: 100px; /* Maintain aspect ratio */
+    }
+
+    .nav-link {
+      padding: 3px 8px; /* Smaller padding for smaller screens */
+      font-size: 0.8rem; /* Smaller font size */
+    }
+  }
