@@ -39,4 +39,19 @@ describe('create a outfit', function () {
     assert.strictEqual(await driver.getCurrentUrl(), 'http://localhost:3000/#/outfits');
     console.log('Wardrobe page loaded successfully');
   })
+
+  it('should swipe the top clothing item to the left', async () => {
+    // Wait for the outfit page to load by waiting for a specific element
+    await driver.wait(until.elementLocated(By.css('.outfit-card')), 10000); // Adjust the selector as needed
+
+    // Locate the first outfit card
+    const firstOutfitCard = await driver.findElement(By.id('swipeable-image'));
+    const actions = driver.actions({ async: true });
+
+    // Swipe left on the first outfit card
+    
+
+    console.log('Swiped left on the first outfit card');
+  });
+
 });

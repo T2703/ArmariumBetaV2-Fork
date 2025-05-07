@@ -72,6 +72,8 @@ describe('Wardrobe Page Tests', function () {
     // Click the "Add" button
     await addButton.click();
 
+    await driver.sleep(5000); // Wait for the modal to appear
+
     // Wait for the modal to appear
     const modal = await driver.wait(until.elementLocated(By.css('.Form-box')), 5000);
 

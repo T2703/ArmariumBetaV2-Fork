@@ -60,6 +60,7 @@ const SwipeableImage = ({ image, handleSwipe, isLocked, isAllLocked, handleSwipe
         alt="Clothing item"
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         onDragStart={(e) => e.preventDefault()} 
+        id="swipeable-image"
       />
     </motion.div>
   );
@@ -387,7 +388,6 @@ function Outfit() {
               className="lock-image"
               style={{ cursor: "pointer" }}
           />
-
           {/* Add Modal Button */}
           <button
             onClick={() => setShowAddModal(true)}
