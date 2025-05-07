@@ -83,13 +83,10 @@ function Navbar() {
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink className="nav-link " id="add-clothes-link" to="/add-clothes" end>
-              Add Clothes
-            </NavLink>
-          </li>
-          <button className="nav-link btn btn-link " id="signout-button" onClick={handleLogout}>
+            <button className="nav-link btn btn-link" id="signout-button" onClick={handleLogout}>
               Sign Out
             </button>
+          </li>
         </div>
 
     </nav>
