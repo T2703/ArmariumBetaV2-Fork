@@ -86,6 +86,7 @@ function Navbar() {
             <button className="nav-link btn btn-link" id="signout-button" onClick={handleLogout}>
               Sign Out
             </button>
+          </li>
         </div>
 
     </nav>
