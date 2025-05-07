@@ -71,18 +71,6 @@
     text-align:center;
   }
 
-  .styleboard-button {
-    background-color: #a52a2a;
-    color: white;
-    border: none;
-    border-radius: 5px 5px 0px 0px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  }
-
   .add-nav-link {
     width: 100px; /* Width of the square */
     height: 100px; /* Height of the square */
