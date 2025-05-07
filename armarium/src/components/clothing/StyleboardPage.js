@@ -13,9 +13,6 @@ function StyleboardPage() {
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [selectedOutfits, setSelectedOutfits] = React.useState([]);
 
-  console.log("Styleboard data before delete:", styleboard.outfits);
-
-
   const handleDelete = async () => {
     const user = auth.currentUser;
 
@@ -38,8 +35,6 @@ function StyleboardPage() {
         doc(db, `Users/${user.uid}/Outfits`, outfit.id)
       );
 
-      console.log("Selected outfit references:", selectedOutfitRefs);
-
       const updatedOutfits = currentOutfits.filter((outfitRef) => {
         const isMatch = selectedOutfitRefs.some((selectedRef) => {
           console.log("Comparing outfitRef:", outfitRef.path, "with selectedRef:", selectedRef.path);
@@ -56,13 +51,9 @@ function StyleboardPage() {
         (outfit) => !selectedOutfits.some((selectedOutfit) => selectedOutfit.id === outfit.id)
       );
 
-      console.log("Styleboard data after delete:", styleboard.outfits);
-
       // Clear the selected outfits and close the modal
       setSelectedOutfits([]);
       setShowDeleteModal(false);
-
-      console.log("Outfits removed successfully from the styleboard.");
     } catch (error) {
       console.error("Error deleting outfit:", error);
     }
