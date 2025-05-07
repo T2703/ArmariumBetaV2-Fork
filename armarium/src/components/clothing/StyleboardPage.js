@@ -13,6 +13,8 @@ function StyleboardPage() {
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [selectedOutfits, setSelectedOutfits] = React.useState([]);
 
+  console.log("Styleboard data before delete:", styleboard.outfits);
+
 
   const handleDelete = async () => {
     const user = auth.currentUser;
@@ -50,7 +52,11 @@ function StyleboardPage() {
       // Update the document with the modified array
       await updateDoc(styleboardDocRef, { outfits: updatedOutfits });
 
-      styleboard.outfits = updatedOutfits;
+      styleboard.outfits = styleboard.outfits.filter(
+        (outfit) => !selectedOutfits.some((selectedOutfit) => selectedOutfit.id === outfit.id)
+      );
+
+      console.log("Styleboard data after delete:", styleboard.outfits);
 
       // Clear the selected outfits and close the modal
       setSelectedOutfits([]);
