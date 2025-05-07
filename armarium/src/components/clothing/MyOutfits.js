@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, doc, deleteDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc, setDoc, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../backend/firebaseConfig";
 import { db } from '../backend/firebaseConfig'; 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
+import OutfitsList from './OutfitsList';
 import Loader from '../Loader';
 import '../styles/MyOutfits.css';
 
@@ -44,11 +45,12 @@ function Outfits() {
   };
 
   const filteredOutfits = () => {
-    if (!outfits) return []; 
-    return outfits.filter(outfit => {
+    if (!outfits) return [];
+    let fOutfits = outfits.filter(outfit => {
       const matchesTitle = outfit.outfitName && outfit.outfitName.toLowerCase().includes(searchInput.toLowerCase());
       return matchesTitle;
     });
+    return fOutfits;
 };
 
 
@@ -68,38 +70,15 @@ const createStyleboard = async () => {
   try {
     await new Promise((resolve) => setTimeout(resolve, DELAY));
 
-    for (const outfit of selectedOutfits) {
-      // Define the original outfit path and the new styleboard path
-      const originalOutfitPath = `Users/${user.uid}/Outfits/${outfit.id}/${outfit.outfitName}`;
-      const styleboardPath = `Users/Styleboards/${user.uid}/${styleboardName}/${outfit.outfitName}`;
+    const outfitRefs = selectedOutfits.map((outfit) =>
+      doc(db, `Users/${user.uid}/Outfits`, outfit.id)
+    );
 
-      console.log(`Reusing images from path: ${originalOutfitPath}`);
-      console.log(`Creating styleboard path: ${styleboardPath}`);
-
-      // Upload images to Firebase Storage
-      const imageTypes = ["topImageUrl", "bottomImageUrl", "shoesImageUrl"];
-      const uploadedImages = {};
-
-      for (const type of imageTypes) {
-        const imageUrl = outfit[type];
-        const fileName = type.replace("ImageUrl", ""); // e.g., "topImageUrl" -> "top"
-        const storageRef = ref(storage, `${styleboardPath}/${fileName}.jpg`);
-
-        // Fetch the image as a blob
-        const imageBlob = await fetch(imageUrl).then((res) => res.blob());
-
-        // Upload the image to Firebase Storage
-        await uploadBytes(storageRef, imageBlob);
-
-        // Get the download URL for the uploaded image
-        const downloadUrl = await getDownloadURL(storageRef);
-        uploadedImages[fileName] = downloadUrl;
-
-        console.log(`Uploaded ${fileName} image to: ${downloadUrl}`);
-      }
-
-      console.log(`Outfit "${outfit.outfitName}" added to styleboard at path: ${styleboardPath}`);
-    }
+    await addDoc(collection(db, `Users/${user.uid}/Styleboards`), {
+      name: styleboardName,
+      createdAt: new Date(),
+      outfits: outfitRefs,
+    });
 
     console.log("Styleboard created successfully:", styleboardName);
     setSelectedOutfits([]);
@@ -167,23 +146,8 @@ return (
       />
     </div>
 
-    {/* <div className="center">
-      <img
-        src="trashcan.png"
-        alt="Trashcan Button"
-        onClick={() => {
-          if (selectedOutfits.length > 0) {
-            setShowDeleteModal(true);
-          } else {
-            alert("No outfit has been selected.");
-          }
-        }}
-        className="mode-image"
-      />
-    </div> */}
-
     <div className="center">
-      <button className="delete-outfits-button" onClick={() => {
+      <button className="outfit-button" onClick={() => {
         if (selectedOutfits.length > 0) {
           setShowDeleteModal(true);
         } else {
@@ -192,7 +156,7 @@ return (
       }}>
         Delete
       </button>
-      <button className="styleboard-button" onClick={() => {
+      <button className="outfit-button" onClick={() => {
           if (selectedOutfits.length > 0) {
             setShowStyleboardModal(true);
           } else {
@@ -205,61 +169,8 @@ return (
     
     <div className="center">
       <div className="outfit-outer">
-        <ul className="outfits-list">
-        {/* <li className="add-outfit center" onClick={() => navigate("/outfits")}>
-          <div className="circle">
-            <div className="horizontal-plus"></div>
-            <div className="vertical-plus"></div>
-          </div>
-        </li> */}
 
-        <li className="outfit-item" 
-          style={{ backgroundColor: '#a52a2a' }}
-          onClick={() => navigate("/outfits")}>
-        </li>
-        {filteredOutfits().length > 0 ? (
-          filteredOutfits().map((outfit) => (
-            <li key={outfit.id} className="outfit-item"
-            onClick={() => navigate(`/editOutfit/${outfit.id}`, { state: { outfitName: outfit.outfitName, outfitId: outfit.id}})}
-            style={{
-              border: selectedOutfits.some(item => item.id === outfit.id) ? '2px solid blue'
-                : '2px solid whitesmoke'
-            }}>
-              <input type="checkbox" 
-                className="select-box"
-                onClick={
-                (event) => {event.stopPropagation();
-                if (event.target.checked) {
-                  setSelectedOutfits((prevList) => [...prevList, outfit]);
-                } else {
-                  setSelectedOutfits((prevList) => prevList.filter((item) => item.id !== outfit.id));
-                }
-                }}>
-              </input>
-              <div className="image-container">
-                <img 
-                  src={outfit.topImageUrl} 
-                  alt="Top"
-                  className="outfit-image center"
-                />
-                <img 
-                  src={outfit.bottomImageUrl} 
-                  alt="Bottom" 
-                  className="outfit-image center"
-                />
-                <img 
-                  src={outfit.shoesImageUrl} 
-                  alt="Shoes" 
-                  className="outfit-image center"
-                />
-              </div>
-              <h1 className="outfit-title">{outfit.outfitName}</h1>
-            </li>
-          ))
-        ) : (
-          <p>No outfits found.</p>
-        )}
-      
+      <OutfitsList outfits={filteredOutfits()} selectedOutfits={selectedOutfits} setSelectedOutfits={setSelectedOutfits} />
 
       {/* Delete Modal */}
       <div className={`modal ${showDeleteModal ? 'd-block' : 'd-none'}`} tabIndex="-1" role="dialog">
@@ -318,7 +229,6 @@ return (
             </div>
           </div>
         </div>
-      </ul>
       </div>
     </div>
   </div>
