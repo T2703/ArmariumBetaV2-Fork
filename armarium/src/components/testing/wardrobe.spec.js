@@ -61,5 +61,40 @@ describe('Wardrobe Page Tests', function () {
     console.log('Wardrobe page loaded successfully');
 
   });
+  it('Add modal should open when "Add" button is clicked', async () => {
+    await driver.sleep(10000); // Wait for the wardrobe page to load
+    // Locate the "Add" button for tops
+    const addButton = await driver.findElement(By.id('tops-add-button'));
 
+    // Wait for the button to be clickable
+    await driver.wait(until.elementIsVisible(addButton), 5000);
+
+    // Click the "Add" button
+    await addButton.click();
+
+    // Wait for the modal to appear
+    const modal = await driver.wait(until.elementLocated(By.css('.Form-box')), 5000);
+
+    // Verify that the modal is displayed
+    const isModalDisplayed = await modal.isDisplayed();
+    assert.strictEqual(isModalDisplayed, true, 'The modal was not displayed after clicking the "Add" button');
+
+    // Locate the dropdown for selecting the type
+    const dropdown = await driver.findElement(By.css('select'));
+
+    // Click the dropdown to open it
+    await dropdown.click();
+    await driver.sleep(3000); // Wait for the wardrobe page to load
+
+    // Select the "Top" option
+    const topOption = await driver.findElement(By.css('option[value="top"]'));
+    await topOption.click();
+
+    await driver.sleep(3000);
+
+    // Verify that the "Top" option is selected
+    const selectedValue = await dropdown.getAttribute('value');
+    assert.strictEqual(selectedValue, 'top', 'The "Top" option was not selected');
+    console.log('Successfully selected "Top" from the dropdown');
+  });
 });

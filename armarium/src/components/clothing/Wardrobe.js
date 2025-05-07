@@ -309,7 +309,7 @@ const Wardrobe = () => {
             <div className="wardrobe-row">
                 <div className='Add-Button'>
                     <h3>Tops</h3>
-                    <button className="add-nav-link" onClick={() => handleShowModal('top')}>
+                    <button className="add-nav-link" id="tops-add-button"onClick={() => handleShowModal('top')}>
                         Add
                     </button>
                 </div>
