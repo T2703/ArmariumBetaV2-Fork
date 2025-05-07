@@ -216,8 +216,17 @@ function Navbar() {
               Add Clothes
               </NavLink>
             </li>
+            <li className="nav-item mobile-only">
+              <button className="nav-link btn btn-link" id="signout-button" onClick={handleLogout}>
+                Sign Out
+              </button>
+            </li>
+          </div>
+
+
+          {/* Right-side icons that stay visible on mobile */}
+          <div className="navbar-right">
             {/* Message button with notification counter and dropdown */}
-            <li className="nav-item message-item">
               <div className="message-dropdown-container" ref={messageDropdownRef}>
                 <button className="nav-link message-link" onClick={toggleMessageDropdown}>
                   Messages
@@ -289,12 +298,11 @@ function Navbar() {
                   </div>
                 )}
               </div>
-            </li>
-            <li className="nav-item">
-              <button className="nav-link btn btn-link" id="signout-button" onClick={handleLogout}>
+              
+              {/* Sign Out button (desktop only) */}
+              <button className="nav-link btn btn-link desktop-only" id="signout-button" onClick={handleLogout}>
                 Sign Out
               </button>
-            </li>
         </div>
       </div>
     </nav>

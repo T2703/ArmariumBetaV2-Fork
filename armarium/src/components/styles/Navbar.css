@@ -13,6 +13,31 @@
   display: flex;
   align-items: center;
   list-style: none;
+  width: 100%;
+  padding: 0;
+}
+
+/* For the container-fluid to properly space elements */
+.container-fluid {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;  
+}
+
+#signout-button {
+  white-space: nowrap;
+}
+
+/* If needed, adjust width of the container for desktop version */
+.desktop-only#signout-button {
+  width: auto;
+}
+
+/* Create a separate container for right-aligned items in mobile view */
+.navbar-right {
+  display: flex;
+  align-items: center;
 }
 
 .nav-item {
@@ -40,6 +65,22 @@
 }
 
 .nav-link.active {
+  background-color: #d8a7a7;
+  color: #ffffff;
+}
+
+/* Reset default hover/active state for #home-link */
+#home-link {
+  background-color: transparent;
+  color: white;
+}
+
+#home-link:hover {
+  background-color: #d8a7a7;
+  color: #ffffff;
+}
+
+#home-link.active {
   background-color: #d8a7a7;
   color: #ffffff;
 }
@@ -183,10 +224,48 @@
   gap: 20px
 }
 
+.mobile-only {
+  display: none; /* Hide on larger screens */
+}
+
 /* Media query for smaller screens */
 @media (max-width: 768px) {
   .navbar-nav {
     display: none; /* Hide the menu by default */
+  }
+
+  .navbar-nav.mobile.active {
+    display: flex;
+  }
+
+  .navbar-nav .nav-item {
+    margin: 8px 0;
+  }
+
+  /* Show mobile-only elements */
+  .mobile-only {
+    display: block;
+  }
+
+  /* Hide desktop-only elements */
+  .desktop-only {
+    display: none;
+  }
+
+  .message-item {
+    display: block;
+    margin-right: 10px;
+  }
+
+  /* Position the message item properly */
+  .navbar-right {
+    margin-left: auto;
+  }
+
+  /* Message dropdown positioning for mobile */
+  .message-dropdown {
+    right: -20px; /* Adjust based on your layout */
+    width: 280px; /* Slightly smaller for mobile */
   }
 
   .navbar-toggle {
@@ -195,9 +274,13 @@
 }
 
 /* Message button positioning */
-.message-item {
+/* .message-item {
   position: absolute;
   right: 70px;
+} */
+.message-item {
+  margin-left: auto; /* This pushes the element to the right */
+  margin-right: 20px; /* Space between Messages and Sign Out */
 }
 
 /* Message badge styling */
@@ -225,6 +308,7 @@
 /* Message dropdown container */
 .message-dropdown-container {
   position: relative;
+  margin-right: 20px;
 }
 
 /* Message dropdown styling */
