@@ -141,7 +141,7 @@ return (
     </div>
 
     <div className="center">
-      <button className="delete-outfits-button" onClick={() => {
+      <button className="outfit-button" onClick={() => {
         if (selectedOutfits.length > 0) {
           setShowDeleteModal(true);
         } else {
@@ -150,7 +150,7 @@ return (
       }}>
         Delete
       </button>
-      <button className="styleboard-button" onClick={() => {
+      <button className="outfit-button" onClick={() => {
           if (selectedOutfits.length > 0) {
             setShowStyleboardModal(true);
           } else {
