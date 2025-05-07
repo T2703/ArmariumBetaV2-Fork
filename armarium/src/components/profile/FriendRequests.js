@@ -343,6 +343,7 @@ useEffect(() => {
                     <h2>Find a Friend</h2>
                     <input
                         type="text"
+                        className="search-friends"
                         placeholder="Enter username"
                         value={searchUsername}
                         onChange={(e) => setSearchUsername(e.target.value)}
@@ -362,7 +363,7 @@ useEffect(() => {
                         ))}
                         </ul>
                     )}
-                    <button onClick={handleSendRequest}>Send Friend Request</button>
+                    <button className="send-friend-button" onClick={handleSendRequest}>Send Friend Request</button>
                     {message && <p>{message}</p>}
                 </div>
                 {/* Friend Requests UI */}

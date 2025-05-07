@@ -4,9 +4,8 @@
   align-items: center;
 }
 
-.page-title {
+.outfit-page-title {
   color: #a52a2a;
-  font-size: 50px;
   font-weight: bold;
 }
 
@@ -34,8 +33,6 @@
 }
 
 .outfit-item {
-  width: 100%;
-  height: 360px;
   background-color: whitesmoke;
   border-radius: 5px;
   position: relative;
@@ -100,4 +97,69 @@
   height: 50%;
   left: 43.75%;
   top: 12.5%;
+}
+
+.outer-outfit {
+  width: 100%;
+}
+
+.select-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.outfit-button {
+  background-color: white;
+  color: #a52a2a;
+  border: 2px solid #a52a2a;
+  border-radius: 5px 5px 0px 0px;
+  padding: 5px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.outfit-button:hover {
+  background-color: #cc7979;
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 769px) {
+  .outer-outfit {
+    width: 100%;
+  }
+
+  .select-box {
+    width: 10%;
+    height: 10%;
+  }
+}
+
+@media (max-width: 768px) {
+  /* .outfit-page-title {
+    font-size: 2em;
+  } */
+
+  .outfit-outer {
+    width: 100%;
+  }
+
+  .select-box {
+    width: 15%;
+    height: 15%;
+  }
+
+  .search-input {
+    width: 90%;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #a52a2a;
+    border-radius: 5px;
+    margin: 10px auto;
+    display: block;
+  }
 }

@@ -17,11 +17,13 @@ function EditOutfit() {
     const [bottoms, setBottoms] = useState([]);
     const [shoes, setShoes] = useState([]);
     const [madeChanges, setMadeChanges] = useState(false);
+    const [chosenName, setChosenName] = useState(outfitName);
     const [chosenTop, setChosenTop] = useState(null);
     const [chosenBottom, setChosenBottom] = useState(null);
     const [chosenShoes, setChosenShoes] = useState(null);
     // const [chosenLayers, setChosenLayers] = useState([]);
 
+    const [baseName, setBaseName] = useState(outfitName);
     const [baseTop, setBaseTop] = useState(null);
     const [baseBottom, setBaseBottom] = useState(null);
     const [baseShoes, setBaseShoes] = useState(null);
@@ -125,6 +127,8 @@ function EditOutfit() {
                     setBaseBottom(doc.data().bottomImageUrl);
                     setChosenShoes(doc.data().shoesImageUrl);
                     setBaseShoes(doc.data().shoesImageUrl);
+                    setChosenName(doc.data().outfitName);
+                    setBaseName(doc.data().outfitName);
                 }
             });
             console.log(outfitId);
@@ -147,7 +151,8 @@ function EditOutfit() {
             await updateDoc(outfitRef, {
                 topImageUrl: chosenTop,
                 bottomImageUrl: chosenBottom,
-                shoesImageUrl: chosenShoes
+                shoesImageUrl: chosenShoes,
+                outfitName: chosenName
             });
 
             // TODO: update in storage too instead of just in firestore database
@@ -161,6 +166,7 @@ function EditOutfit() {
 
     const handleCancelChanges = () => {
         setMadeChanges(false);
+        setBaseName(baseName);
         setChosenTop(baseTop);
         setChosenBottom(baseBottom);
         setChosenShoes(baseShoes);
@@ -171,7 +177,15 @@ function EditOutfit() {
         <div>
             <Navbar />
             <div className="center">
-                <h1 className="page-title">{ outfitName }</h1>
+                <input 
+                    type="text" 
+                    className="page-title" 
+                    value={chosenName} 
+                    onChange={(e) => {
+                        setMadeChanges(true);
+                        setChosenName(e.target.value);
+                    }} 
+                />
             </div>
 
             <div className="center">
@@ -218,7 +232,7 @@ function EditOutfit() {
                     
                     {madeChanges && (
                         <>
-                            <button onClick={() => handleSaveChanges()} className="tab-button save-button">Save Changes</button>
+                            <button onClick={() => handleSaveChanges()} className="tab-button save-button">Save</button>
                             <button onClick={() => handleCancelChanges()} className="tab-button cancel-button">Cancel</button>
                         </>
                     )}                

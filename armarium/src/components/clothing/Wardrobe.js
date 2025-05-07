@@ -4,9 +4,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Navbar from '../Navbar';
+import Loader from '../Loader';
 import ItemUpload from './itemUpload';
 import ClothesLibSearch from './ClothesLibSearch';
-import '../styles/Loading.css';
 import '../styles/Wardrobe.css';
 import '../styles/Forms.css';
 import { Center } from 'framer/render/presentation/Frame/DeprecatedFrame.js';
@@ -16,10 +16,12 @@ const Wardrobe = () => {
     const [bottoms, setBottoms] = useState([]);
     const [shoes, setShoes] = useState([]);
     const [topLayers, setTopLayers] = useState([]);
+    const [accessory, setAccessory] = useState([]);
     const [isTop, setIsTop] = useState(true);
     const [isBottom, setIsBottom] = useState(false);
     const [isShoes, setIsShoes] = useState(false);
     const [isTopLayer, setIsTopLayer] = useState(false);
+    const [isAccessory, setIsAccessory] = useState(false);
     const [isDelete, setIsDelete] = useState(false);
     const [clothesToDelete, setClothesToDelete] = useState([]);
     const [searchInput, setSearchInput] = useState("");
@@ -62,6 +64,7 @@ const Wardrobe = () => {
         isBottom ? filteredClothes(bottoms) :
             isShoes ? filteredClothes(shoes) :
                 isTopLayer ? filteredClothes(topLayers) :
+                    isAccessory ? filteredClothes(accessory) :
                     [];
 
     const fetchData = async (user) => {
@@ -117,6 +120,18 @@ const Wardrobe = () => {
                 setTopLayers(topLayerData);
             }
 
+            if (accessory.length === 0) {
+                const accessoryCollection = await getDocs(collection(db, `Users/${user.uid}/ItemsCollection/accessory/items`));
+                const accessoryData = accessoryCollection.docs.map(doc => ({
+                    id: doc.id,
+                    title: doc.data().title,
+                    tags: doc.data().tags,
+                    url: doc.data().url
+                }));
+                console.log("Accessory", accessoryData);
+                setAccessory(accessoryData);
+            }
+
         } catch (error) {
             setError(error);
             setLoading(false);
@@ -161,6 +176,9 @@ const Wardrobe = () => {
             else if (type === 'toplayer') {
                 setTopLayers(topLayers.filter((item) => item.id !== id));
             }
+            else if (type === 'accessory') {
+                setAccessory(accessory.filter((item) => item.id !== id));
+            }
         }
 
         setClothesToDelete([]);
@@ -192,6 +210,7 @@ const Wardrobe = () => {
         setIsBottom(false);
         setIsShoes(false);
         setIsTopLayer(false);
+        setIsAccessory(false);
     };
 
     const handleShowBottoms = () => {
@@ -199,6 +218,7 @@ const Wardrobe = () => {
         setIsBottom(true);
         setIsShoes(false);
         setIsTopLayer(false);
+        setIsAccessory(false);
     };
 
     const handleShowShoes = () => {
@@ -206,6 +226,7 @@ const Wardrobe = () => {
         setIsBottom(false);
         setIsShoes(true);
         setIsTopLayer(false);
+        setIsAccessory(false);
     };
 
     const handleShowTopLayers = () => {
@@ -213,6 +234,14 @@ const Wardrobe = () => {
         setIsBottom(false);
         setIsShoes(false);
         setIsTopLayer(true);
+        setIsAccessory(false);
+    };
+    const handleShowAccessory = () => {
+        setIsTop(false);
+        setIsBottom(false);
+        setIsShoes(false);
+        setIsTopLayer(false);
+        setIsAccessory(true);
     };
 
     const toggleDelete = () => {
@@ -226,17 +255,14 @@ const Wardrobe = () => {
         const inputValue = e.target.value.toLowerCase();
         setSearchInput(inputValue);
     };
-
-    if (loading) {
-        return <div><Navbar /> <div className="loader"></div></div>;
-    }
-
+    
     if (error) {
         return <div><Navbar /> Error: {error.message}</div>;
     }
 
     return (
-        <div>
+        <div className="wardrobe-container">
+            <Loader loading={loading} />
             <Navbar />
             <div className="wardrobe-header">
                 <input
@@ -246,11 +272,11 @@ const Wardrobe = () => {
                     onChange={handleSearchChange}
                     className="wardrobe-search"
                 />
-                <button className="nav-link" onClick={toggleDelete}>
+                <button className="delete-clothing-item" onClick={toggleDelete}>
                     {isDelete ? 'Cancel' : 'Delete'}
                 </button>
                 {isDelete && (
-                    <button className="nav-link" onClick={handleDelete}>
+                    <button className="delete-clothing-item" onClick={handleDelete}>
                         Confirm Delete
                     </button>
                 )}
@@ -395,6 +421,36 @@ const Wardrobe = () => {
                                 </button>
                             )}
                         </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Accessory Row */}
+            <div className="wardrobe-row">
+                <div className='Add-Button'>
+                    <h3>Accessory</h3>
+                    <button className="add-nav-link" onClick={() => handleShowModal('accessory')}>
+                        Add
+                    </button>
+                </div>
+                <div className="wardrobe-content-row">
+                {filteredClothes(accessory).map((accessory, index) => (
+                    <div key={accessory.id} className="wardrobe-item">
+                        <img 
+                        src={accessory.url} 
+                        alt={`Accessory ${index + 1}`} 
+                        className="wardrobe-image"
+                        onClick={() => handleDeleteClick({ id: accessory.id, type: 'accessory' })}
+                        />
+                        {isDelete && (
+                        <button
+                            onClick={() => addToDeleteList({ id: accessory.id, type: 'accessory' })}
+                            className="delete-button"
+                        >
+                            {clothesToDelete.some(item => item.id === accessory.id) ? 'Remove' : 'Select'}
+                        </button>
+                        )}
+                    </div>
                     ))}
                 </div>
             </div>

@@ -191,7 +191,7 @@ function Navbar() {
             {isDropdownVisible && <Dropdown />}
           </li>
           <li className="nav-item">
-            <NavLink className="nav-link" id="friend-requests-link" to="/friendRequests" end>
+            <NavLink className="nav-link nav-link-mobile" id="friend-requests-link" to="/friendRequests" end>
               Social
             </NavLink>
           </li>
