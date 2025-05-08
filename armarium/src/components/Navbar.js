@@ -1,11 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { db } from './backend/firebaseConfig'; // Import Firestore database
-import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, updateDoc, doc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, updateDoc, doc, getDoc, getDocs, arrayUnion, arrayRemove } from 'firebase/firestore';
 import './styles/Navbar.css';
 import Dropdown from './Dropdown';
 import { getAuth, signOut } from 'firebase/auth';
-import { getConversationId, sendMessage, getUserConversations, listenToConversationMessages, markConversationAsRead } from './utils/conversations';
+import { 
+  getConversationId, 
+  sendMessage, 
+  getUserConversations, 
+  listenToConversationMessages, 
+  markConversationAsRead, 
+  sendOutfitMessage,
+  setTypingStatus,
+  listenToTypingStatus
+} from './utils/conversations';
 
 function Navbar() {
   const navigate = useNavigate();
@@ -24,13 +33,63 @@ function Navbar() {
   const [allFriends, setAllFriends] = useState([]); // State to hold all friends
   const [friendMessages, setFriendMessages] = useState([]); // State to hold messages of all friends
   const [userConversations, setUserConversations] = useState([]);
+  const [showOutfitModal, setShowOutfitModal] = useState(false);
+  const [userOutfits, setUserOutfits] = useState([]);
+  const [selectedOutfit, setSelectedOutfit] = useState(null);
+  const [outfitMessage, setOutfitMessage] = useState("Check out this outfit!");
+  const [loadingOutfits, setLoadingOutfits] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
   // State to hold the number of unread messages
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Only scroll within the message container, not the whole page
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
-  }, [conversationMessages]);
+  }, [conversationMessages, isOtherUserTyping]);
+
+  // Add this useEffect to listen for conversation changes continuously
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    
+    // Listen to changes in the user's conversations collection
+    const userConversationsRef = collection(db, 'Users', auth.currentUser.uid, 'conversations');
+    
+    const unsubscribe = onSnapshot(userConversationsRef, async (snapshot) => {
+      // When the conversations collection changes, fetch all conversations
+      try {
+        const conversations = await getUserConversations(auth.currentUser.uid);
+        setUserConversations(conversations);
+        
+        // Count unread conversations
+        const unreadCount = conversations.filter(conv => conv.unread).length;
+        setUnreadMessages(unreadCount);
+      } catch (error) {
+        console.error("Error updating conversations:", error);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [auth.currentUser]); // Only depend on auth.currentUser
+
+  useEffect(() => {
+    // Check if we need to reopen a conversation
+    const storedConversation = sessionStorage.getItem('reopenConversation');
+    if (storedConversation) {
+      const conversation = JSON.parse(storedConversation);
+      setShowMessageDropdown(true);
+      setCurrentConversation({
+        id: conversation.conversationId,
+        withUser: conversation.withUser,
+        withUserName: conversation.withUserName
+      });
+      // Clear the stored data
+      sessionStorage.removeItem('reopenConversation');
+    }
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -67,7 +126,7 @@ function Navbar() {
   // Fetch all friends when the dropdown is opened
   useEffect(() => {
     if (!showMessageDropdown || !auth.currentUser) return;
-
+  
     const fetchFriendsAndConversations = async () => {
       try {
         // Get friends from the user's friends collection
@@ -81,19 +140,13 @@ function Navbar() {
         }));
         
         setAllFriends(friendsList);
-
-        // Get all conversations
-        const conversations = await getUserConversations(auth.currentUser.uid);
-        setUserConversations(conversations);
         
-        // Count unread conversations
-        const unreadCount = conversations.filter(conv => conv.unread).length;
-        setUnreadMessages(unreadCount);
+        // We don't need to fetch conversations here anymore as we do it in the continuous listener
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching friends:", error);
       }
     };
-
+  
     fetchFriendsAndConversations();
   }, [showMessageDropdown, auth.currentUser]);
 
@@ -111,6 +164,62 @@ function Navbar() {
       withUser: friend.id,
       withUserName: friend.username || 'Friend'
     });
+  };
+
+  // Handle typing status
+  useEffect(() => {
+    if (!auth.currentUser || !currentConversation) return;
+
+    console.log("Setting up typing status listener for conversation:", currentConversation.id);
+    
+    // Listen for typing status changes
+    const unsubscribe = listenToTypingStatus(
+      currentConversation.id,
+      auth.currentUser.uid,
+      (otherUserTyping) => {
+        console.log("Typing status update:", otherUserTyping);
+        setIsOtherUserTyping(otherUserTyping);
+      }
+    );
+    
+    return () => {
+      console.log("Removing typing status listener");
+      unsubscribe();
+    };
+  }, [currentConversation, auth.currentUser]);
+
+  const handleMessageInputChange = (e) => {
+    const value = e.target.value;
+    setMessageContent(value);
+    
+    if (!auth.currentUser || !currentConversation) return;
+    
+    // Clear previous timeout first
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    // Only update typing status if there's content to type
+    if (value.trim()) {
+      // If not already set as typing, set it now
+      if (!isTyping) {
+        console.log("User started typing");
+        setIsTyping(true);
+        setTypingStatus(auth.currentUser.uid, currentConversation.id, true);
+      }
+      
+      // Set a new timeout - will only trigger if user stops typing
+      typingTimeoutRef.current = setTimeout(() => {
+        console.log("User stopped typing (timeout)");
+        setIsTyping(false);
+        setTypingStatus(auth.currentUser.uid, currentConversation.id, false);
+      }, 2000);
+    } else {
+      // If input is empty, immediately set as not typing
+      console.log("Input empty, user not typing");
+      setIsTyping(false);
+      setTypingStatus(auth.currentUser.uid, currentConversation.id, false);
+    }
   };
 
   // Load conversation messages when a conversation is selected
@@ -171,6 +280,73 @@ function Navbar() {
   //   setShowMessageDropdown(false);
   //   navigate('/messages'); // Redirect to messages page
   // }
+
+  const handleViewOutfit = (outfitId, ownerId, conversationId) => {
+    console.log("Viewing outfit with params:", {outfitId, ownerId, conversationId});
+    
+    if (!outfitId || !ownerId) {
+      console.error("Cannot view outfit: missing ID or owner");
+      return;
+    }
+    
+    // Store the current conversation state in sessionStorage
+    sessionStorage.setItem('lastConversation', JSON.stringify({
+      conversationId: conversationId,
+      withUser: currentConversation.withUser,
+      withUserName: currentConversation.withUserName
+    }));
+    
+    // Navigate to the outfit view page using URL parameters
+    navigate(`/viewSharedOutfit/${ownerId}/${outfitId}`);
+  };
+
+  const fetchUserOutfits = async () => {
+    if (!auth.currentUser) return;
+    
+    setLoadingOutfits(true);
+    try {
+      const outfitsRef = collection(db, `Users/${auth.currentUser.uid}/Outfits`);
+      const outfitsSnapshot = await getDocs(outfitsRef);
+      
+      const outfitsList = outfitsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      setUserOutfits(outfitsList);
+    } catch (error) {
+      console.error("Error fetching outfits:", error);
+    } finally {
+      setLoadingOutfits(false);
+    }
+  };
+
+  const handleShareOutfit = async () => {
+    if (!selectedOutfit || !currentConversation) return;
+    
+    try {
+      await sendOutfitMessage(
+        auth.currentUser.uid,
+        currentConversation.withUser,
+        selectedOutfit.id,
+        outfitMessage
+      );
+      
+      // Reset state and close modal
+      setSelectedOutfit(null);
+      setOutfitMessage("Check out this outfit!");
+      setShowOutfitModal(false);
+    } catch (error) {
+      console.error("Error sharing outfit:", error);
+      alert("Failed to share outfit. Please try again.");
+    }
+  };
+
+  // Function to open modal and load outfits
+  const handleOpenOutfitModal = () => {
+    fetchUserOutfits();
+    setShowOutfitModal(true);
+  };
 
   return (
     <nav className="navbar">
@@ -244,39 +420,62 @@ function Navbar() {
                       <>
                         <h4>Messages</h4>
                         <ul className="message-list">
-                          {allFriends.length > 0 ? (
-                            allFriends.map(friend => {
-                              // Find if there's a conversation with this friend
-                              const conversationId = getConversationId(auth.currentUser.uid, friend.id);
-                              const conversation = userConversations.find(c => c.id === conversationId);
-                              
-                              return (
-                                <li key={friend.id} onClick={() => openNewConversation(friend)}>
-                                  <div className="message-preview">
-                                    <strong>{friend.username}</strong>
-                                    {conversation && conversation.lastMessageTime && (
-                                      <span className="message-time">
-                                        {new Date(conversation.lastMessageTime.toDate()).toLocaleTimeString()}
-                                      </span>
-                                    )}
-                                    {conversation && conversation.unread && (
-                                      <span className="unread-indicator">•</span>
-                                    )}
+                          {userConversations.length > 0 ? (
+                            userConversations.map(conv => (
+                              <li
+                                key={conv.id}
+                                className={`message-item ${conv.unread ? 'unread' : ''}`}
+                                onClick={() => openConversation({
+                                  id: conv.id,
+                                  withUser: conv.withUser,
+                                  withUserName: conv.withUserName
+                                })}
+                              >
+                                <div className="message-item-content">
+                                  <div className="message-sender">{conv.withUserName}</div>
+                                  <div className="message-preview">{conv.lastMessage || "New conversation"}</div>
+                                </div>
+                                {conv.lastMessageTime && (
+                                  <div className="message-time">
+                                    {new Date(conv.lastMessageTime.toMillis()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </div>
-                                  {conversation ? (
-                                    <p className="message-snippet">{conversation.lastMessage?.substring(0, 30)}...</p>
-                                  ) : (
-                                    <p className="message-snippet empty-message-preview">Start a conversation</p>
-                                  )}
-                                </li>
-                              );
-                            })
+                                )}
+                                {conv.unread && <div className="unread-indicator"></div>}
+                              </li>
+                            ))
                           ) : (
-                            <li className="empty-message">No friends found</li>
+                            <li className="empty-message">No conversations</li>
                           )}
-                          {/* <li className="view-all" onClick={viewAllMessages}>
-                            See All in Messenger
-                          </li> */}
+                          {(() => {
+                            // Create an array of friend IDs that already have conversations
+                            const friendsWithConversations = userConversations.map(conv => conv.withUser);
+                            
+                            // Filter out friends that already have conversations
+                            const friendsWithoutConversations = allFriends.filter(
+                              friend => !friendsWithConversations.includes(friend.id)
+                            );
+                            
+                            // Only render the "Friends" section if there are friends without conversations
+                            if (friendsWithoutConversations.length > 0) {
+                              return (
+                                <>
+                                  {friendsWithoutConversations.map(friend => (
+                                    <li
+                                      key={friend.id}
+                                      className="message-item"
+                                      onClick={() => openNewConversation(friend)}
+                                    >
+                                      <div className="message-item-content">
+                                        <div className="message-sender">{friend.username}</div>
+                                        <div className="message-preview">Start a new conversation</div>
+                                      </div>
+                                    </li>
+                                  ))}
+                                </>
+                              );
+                            }
+                            return null;
+                          })()}
                         </ul>
                       </>
                     ) : (
@@ -288,7 +487,7 @@ function Navbar() {
                           <h4>{currentConversation.senderName}</h4>
                         </div>
                         
-                        <div className="conversation-messages">
+                        <div className="conversation-messages" ref={messagesContainerRef}>
                           {conversationMessages.length === 0 ? (
                             <div className="no-messages">
                               <p>No messages yet. Send a message to start the conversation!</p>
@@ -299,29 +498,79 @@ function Navbar() {
                                 key={message.id}
                                 className={`message ${message.senderId === auth.currentUser.uid ? 'sent' : 'received'}`}
                               >
-                                <div className="message-content">{message.content}</div>
-                                <div className="message-time">
-                                  {message.timestamp ? 
-                                    (typeof message.timestamp.toDate === 'function' ? 
-                                      new Date(message.timestamp.toDate()).toLocaleTimeString() : 
-                                      new Date(message.timestamp).toLocaleTimeString()
-                                    ) : 'Sending...'}
-                                </div>
+                                {message.type === 'outfit-share' ? (
+                                  <div className="outfit-message">
+                                    <div className="message-content">{message.content}</div>
+                                    <div 
+                                      className="outfit-preview"
+                                      onClick={() => handleViewOutfit(message.outfitId, message.outfitOwnerId, currentConversation.id)}
+                                    >
+                                      <div className="outfit-images">
+                                        <img src={message.outfitPreview.topImageUrl} alt="Top" />
+                                        <img src={message.outfitPreview.bottomImageUrl} alt="Bottom" />
+                                        <img src={message.outfitPreview.shoesImageUrl} alt="Shoes" />
+                                      </div>
+                                      <div className="outfit-name">{message.outfitPreview.name || "Outfit"}</div>
+                                      <span className="view-outfit">View outfit details</span>
+                                    </div>
+                                    <div className="message-time">
+                                      {message.timestamp ? 
+                                        (typeof message.timestamp.toDate === 'function' ? 
+                                          new Date(message.timestamp.toDate()).toLocaleTimeString() : 
+                                          new Date(message.timestamp).toLocaleTimeString()
+                                        ) : 'Sending...'}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div className="message-content">{message.content}</div>
+                                    <div className="message-time">
+                                      {message.timestamp ? 
+                                        (typeof message.timestamp.toDate === 'function' ? 
+                                          new Date(message.timestamp.toDate()).toLocaleTimeString() : 
+                                          new Date(message.timestamp).toLocaleTimeString()
+                                        ) : 'Sending...'}
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             ))
                           )}
+
+                          {/* Add typing indicator */}
+                          {isOtherUserTyping && (
+                            <div className="typing-indicator">
+                              <div className="typing-dot"></div>
+                              <div className="typing-dot"></div>
+                              <div className="typing-dot"></div>
+                            </div>
+                          )}
+
                           <div ref={messagesEndRef} /> {/* Add this for auto-scroll */}
                         </div>
                         
-                        <form onSubmit={handleSendMessage} className="conversation-reply">
-                          <input
-                            type="text"
-                            placeholder="Type a message..."
-                            value={messageContent}
-                            onChange={(e) => setMessageContent(e.target.value)}
-                          />
-                          <button type="submit">Send</button>
-                        </form>
+                        <div className="conversation-footer">
+                          <div className="conversation-actions">
+                            <button 
+                              type="button" 
+                              className="share-outfit-btn"
+                              onClick={handleOpenOutfitModal}
+                            >
+                              Share Outfit
+                            </button>
+                          </div>
+                          <form onSubmit={handleSendMessage} className="conversation-reply">
+                            <div className="conversation-input">
+                              <input
+                                type="text"
+                                placeholder="Type a message..."
+                                value={messageContent}
+                                onChange={handleMessageInputChange}
+                              />
+                              <button type="submit">Send</button>
+                            </div>
+                          </form>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -334,6 +583,82 @@ function Navbar() {
               </button>
         </div>
       </div>
+      {/* Outfit Selection Modal */}
+      {showOutfitModal && (
+        <div className="outfit-share-modal">
+          <div className="outfit-modal-header">
+            <h3>Share an Outfit</h3>
+            <button className="close-btn" onClick={() => setShowOutfitModal(false)}>×</button>
+          </div>
+          
+          <div className="outfit-modal-body">
+            {loadingOutfits ? (
+              <div className="loading-outfits">Loading your outfits...</div>
+            ) : userOutfits.length === 0 ? (
+              <div className="no-outfits-message">
+                <p>You don't have any outfits to share.</p>
+                <button onClick={() => {
+                  setShowOutfitModal(false);
+                  navigate('/create-outfit');
+                }}>Create a new outfit</button>
+              </div>
+            ) : (
+              <>
+                <div className="outfit-grid">
+                  {userOutfits.map(outfit => (
+                    <div 
+                      key={outfit.id} 
+                      className={`outfit-item ${selectedOutfit?.id === outfit.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedOutfit(outfit)}
+                    >
+                      <div className="outfit-preview-grid">
+                        <img src={outfit.topImageUrl} alt="Top" />
+                        <img src={outfit.bottomImageUrl} alt="Bottom" />
+                        <img src={outfit.shoesImageUrl} alt="Shoes" />
+                      </div>
+                      <p className="outfit-name">{outfit.outfitName || "Outfit"}</p>
+                    </div>
+                  ))}
+                </div>
+                
+                {selectedOutfit && (
+                  <div className="selected-outfit-preview">
+                    <h4>Preview: {selectedOutfit.outfitName || "Outfit"}</h4>
+                    <div className="outfit-large-preview">
+                      <img src={selectedOutfit.topImageUrl} alt="Top" className="preview-image" />
+                      <img src={selectedOutfit.bottomImageUrl} alt="Bottom" className="preview-image" />
+                      <img src={selectedOutfit.shoesImageUrl} alt="Shoes" className="preview-image" />
+                    </div>
+                    
+                    <div className="outfit-message-input">
+                      <label>Add a message:</label>
+                      <input
+                        type="text"
+                        value={outfitMessage}
+                        onChange={(e) => setOutfitMessage(e.target.value)}
+                        placeholder="Say something about this outfit..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          
+          <div className="outfit-modal-footer">
+            <button 
+              className="share-btn" 
+              onClick={handleShareOutfit}
+              disabled={!selectedOutfit || loadingOutfits}
+            >
+              Share
+            </button>
+            <button className="cancel-btn" onClick={() => setShowOutfitModal(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
