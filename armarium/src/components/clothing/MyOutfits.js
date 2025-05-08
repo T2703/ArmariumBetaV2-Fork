@@ -15,12 +15,10 @@ function Outfits() {
   const auth = getAuth(); 
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
-  const [styleboardState, setStyleboardState] = useState(false);
   const [selectedOutfits, setSelectedOutfits] = useState([]);
   const [showStyleboardModal, setShowStyleboardModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [styleboardName, setStyleboardName] = useState('');
-  const [title, setTitle] = useState('');
   const navigate = useNavigate();
   const DELAY = 750;
 
@@ -36,7 +34,6 @@ function Outfits() {
         ...doc.data(),
       }));
       setOutfits(outfitsList);
-      setTitle(querySnapshot.outfitName);
       console.log(outfitsList)
       setLoading(false);
     } else {

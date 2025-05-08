@@ -20,6 +20,7 @@
     background-color: white;
     border: 2px solid #a52a2a;
     border-right: none;
+    margin-top: 5px;
     width: 50%;
     padding: 4px 8px;
     border-top-left-radius: 20px;
@@ -34,6 +35,7 @@
   .right-button {
     background-color: white;
     border: 2px solid #a52a2a;
+    margin-top: 5px;
     width:50%;
     padding: 4px 8px;
     border-top-left-radius: 0;
@@ -47,10 +49,11 @@
 
   .left-button:hover, .right-button:hover {
     background-color: #e7a0a0;
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
 
   .edit-outfit-container {
-    width: 30%;
     margin-bottom: 300px;
     display: flex;
     flex-direction: column;
@@ -58,6 +61,8 @@
     justify-content: center;
     overflow-y: auto;
     scroll-behavior: smooth;
+    border: 2px solid #a52a2a;
+    border-radius: 10px;
   }
 
   .bottom-tab {
@@ -134,3 +139,63 @@
     height: auto; /* Maintain aspect ratio */
     object-fit: cover; /* Ensure the image fits nicely */
   }
+
+  .edit-outfit-grid-container {
+    display: grid;
+    grid-template-columns: 3fr;
+    grid-template-rows: repeat(3, auto);
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  .three-column-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .column-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+  }
+  
+  .column-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  .layer-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .remove-layer {
+    position: absolute;
+    color: grey;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50%;
+  }
+  
+  .remove-layer:hover {
+    color: #a52a2a;
+  }
+  
