@@ -28,6 +28,8 @@ import EditOutfit from './clothing/EditOutfit';
 import FriendRequests from './profile/FriendRequests';
 import UserProfile from './profile/UserProfile';
 import ClothesLibSearch from './clothing/ClothesLibSearch';
+import RouteTracker from './utils/RouteTracker'; 
+import ViewSharedOutfit from './clothing/ViewSharedOutfit'
 import Bookmarked from './profile/Bookmarked';
 import BookmarkedPage from './profile/BookmarkedPage';
 
@@ -38,6 +40,7 @@ import BookmarkedPage from './profile/BookmarkedPage';
 function App() {
   return (
     <Router>
+      <RouteTracker /> {/* This enables page tracking */}
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
@@ -72,6 +75,8 @@ function App() {
         <Route path="/editOutfit/:outfitId" element={<EditOutfit />} />
         <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} />} />
         <Route path="/add-clothes" element={<ProtectedRoute element={<ClothesLibSearch />} />} />
+        {/* <Route path="/viewSharedOutfit" element={<ViewSharedOutfit />} /> */}
+        <Route path="/viewSharedOutfit/:ownerId/:outfitId" element={<ViewSharedOutfit />} />
       </Routes>
     </Router>
   );
