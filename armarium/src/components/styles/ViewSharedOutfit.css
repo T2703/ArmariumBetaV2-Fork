@@ -15,7 +15,7 @@
     gap: 15px;
   }
   
-  .outfit-title {
+  .outfit-title1 {
     font-size: 1.8rem;
     color: #a52a2a;
     margin: 0 0 20px 0;
@@ -142,7 +142,7 @@
       align-items: flex-start;
     }
     
-    .outfit-title {
+    .outfit-title1 {
       font-size: 1.5rem;
     }
     
