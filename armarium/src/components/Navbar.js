@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { db } from './backend/firebaseConfig'; // Import Firestore database
-import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, updateDoc, doc, getDoc, getDocs } from 'firebase/firestore';
 import './styles/Navbar.css';
 import Dropdown from './Dropdown';
 import { getAuth, signOut } from 'firebase/auth';
+import { getConversationId, sendMessage, getUserConversations, listenToConversationMessages, markConversationAsRead } from './utils/conversations';
 
 function Navbar() {
   const navigate = useNavigate();
@@ -19,6 +20,17 @@ function Navbar() {
   const [conversationMessages, setConversationMessages] = useState([]); // State to hold messages of the current conversation
   const [messageContent, setMessageContent] = useState('');
   const messageDropdownRef = useRef(null); // Ref for the message dropdown
+  const messagesEndRef = useRef(null); // Ref for auto-scrolling to the bottom of the message list
+  const [allFriends, setAllFriends] = useState([]); // State to hold all friends
+  const [friendMessages, setFriendMessages] = useState([]); // State to hold messages of all friends
+  const [userConversations, setUserConversations] = useState([]);
+
+  // State to hold the number of unread messages
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [conversationMessages]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -52,51 +64,38 @@ function Navbar() {
     console.log("unhover");
   };
 
-  // Track unread messages
+  // Fetch all friends when the dropdown is opened
   useEffect(() => {
-    if (!auth.currentUser) return; // Ensure user is logged in
+    if (!showMessageDropdown || !auth.currentUser) return;
 
-    const messageQuery = query(
-      collection(db, 'messages'),
-      where('receiverId', '==', auth.currentUser.uid),
-      where('read', '==', false) // Filter for unread messages
-    );
+    const fetchFriendsAndConversations = async () => {
+      try {
+        // Get friends from the user's friends collection
+        const friendsRef = collection(db, 'Users', auth.currentUser.uid, 'friends');
+        const friendsSnapshot = await getDocs(friendsRef);
+        
+        const friendsList = friendsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          username: doc.data().username || 'Unknown User',
+          ...doc.data()
+        }));
+        
+        setAllFriends(friendsList);
 
-    const unsubscribe = onSnapshot(messageQuery, (snapshot) => {
-      setUnreadMessages(snapshot.docs.length); // Update unread messages count
+        // Get all conversations
+        const conversations = await getUserConversations(auth.currentUser.uid);
+        setUserConversations(conversations);
+        
+        // Count unread conversations
+        const unreadCount = conversations.filter(conv => conv.unread).length;
+        setUnreadMessages(unreadCount);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-      // Get the recent unread messages for the dropdown
-      const messageData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      // Group messages by sender for conversations
-      const groupedMessages = messageData.reduce((acc, message) => {
-        const senderId = message.senderId;
-        if (!acc[senderId]) {
-          acc[senderId] = [];
-        }
-        acc[senderId].push(message);
-        return acc;
-      }, {});
-
-      // Get the latest message from each conversation
-      const latestMessages = Object.keys(groupedMessages).map(senderId => {
-        const messages = groupedMessages[senderId];
-        return messages.reduce((latest, message) => {
-          if (!latest.timestamp || (message.timestamp && message.timestamp.toDate() > latest.timestamp.toDate())) {
-            return message;
-          }
-          return latest;
-        }, {});
-      });
-
-      setRecentMessages(messageData); // Update recent messages state
-    });
-
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, []);
+    fetchFriendsAndConversations();
+  }, [showMessageDropdown, auth.currentUser]);
 
   const toggleMessageDropdown = () => {
     setShowMessageDropdown(!showMessageDropdown); // Toggle message dropdown visibility
@@ -104,70 +103,74 @@ function Navbar() {
     setConversationMessages([]); // Reset conversation messages
   };
 
+  // Start new conversation with a friend
+  const openNewConversation = (friend) => {
+    console.log("Opening conversation with:", friend);
+    setCurrentConversation({
+      id: getConversationId(auth.currentUser.uid, friend.id),
+      withUser: friend.id,
+      withUserName: friend.username || 'Friend'
+    });
+  };
+
   // Load conversation messages when a conversation is selected
   useEffect(() => {
-    if (!auth.currentUser || !currentConversation) return; // Ensure user is logged in and conversation is selected
-
-    const messagesQuery = query(
-      collection(db, 'messages'),
-      where('participants', 'array-contains', auth.currentUser.uid),
-      orderBy('timestamp', 'asc')
+    if (!auth.currentUser || !currentConversation) return;
+    
+    // Mark the conversation as read
+    markConversationAsRead(auth.currentUser.uid, currentConversation.id);
+    
+    // Listen to messages
+    const unsubscribe = listenToConversationMessages(
+      currentConversation.id,
+      (messages) => {
+        console.log(`Received ${messages.length} messages for conversation`);
+        setConversationMessages(messages);
+      }
     );
-
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      const messages = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })).filter(msg => 
-        (msg.senderId === auth.currentUser.uid && msg.receiverId === currentConversation.senderId) ||
-        (msg.senderId === currentConversation.senderId && msg.receiverId === auth.currentUser.uid)
-      );
-
-      setConversationMessages(messages); // Update conversation messages state
-
-      // Mark messages as read
-      messages.forEach(async (message) => {
-        if (message.receiverId === auth.currentUser.uid && !message.read) {
-          await updateDoc(doc(db, 'messages', message.id), {
-            read: true // Mark message as read
-          });
-        }
-      });
-    });
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [currentConversation]);
+    
+    return () => unsubscribe();
+  }, [currentConversation, auth.currentUser]);
 
   const openConversation = (message) => {
     setCurrentConversation(message);
   };
 
+  // Send message function
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
-    if (!messageContent.trim() || !currentConversation) return; // Ensure message content is not empty and conversation is selected
+    if (!messageContent.trim() || !currentConversation) return;
 
     try {
-      await addDoc(collection(db, 'messages'), {
+      // Show optimistic update
+      const optimisticMessage = {
+        id: 'pending-' + Date.now(),
         content: messageContent,
         senderId: auth.currentUser.uid,
         senderName: auth.currentUser.displayName || 'You',
-        receiverId: currentConversation.senderId,
-        receiverName: currentConversation.senderName,
-        timestamp: serverTimestamp(),
-        read: false,
-        participants: [auth.currentUser.uid, currentConversation.senderId]
-      });
-
-      setMessageContent(''); // Clear message input after sending
+        timestamp: new Date(),
+        read: false
+      };
+      
+      setConversationMessages(prev => [...prev, optimisticMessage]);
+      setMessageContent('');
+      
+      // Send using the new function
+      await sendMessage(
+        auth.currentUser.uid, 
+        currentConversation.withUser, 
+        messageContent
+      );
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  const viewAllMessages = () => {
-    setShowMessageDropdown(false);
-    navigate('/messages'); // Redirect to messages page
-  }
+  // const viewAllMessages = () => {
+  //   setShowMessageDropdown(false);
+  //   navigate('/messages'); // Redirect to messages page
+  // }
 
   return (
     <nav className="navbar">
@@ -241,24 +244,39 @@ function Navbar() {
                       <>
                         <h4>Messages</h4>
                         <ul className="message-list">
-                          {recentMessages.length > 0 ? (
-                            recentMessages.map(message => (
-                              <li key={message.id} onClick={() => openConversation(message)}>
-                                <div className="message-preview">
-                                  <strong>{message.senderName}</strong>
-                                  <span className="message-time">
-                                    {message.timestamp ? new Date(message.timestamp.toDate()).toLocaleTimeString() : ''}
-                                  </span>
-                                </div>
-                                <p className="message-snippet">{message.content?.substring(0, 30)}...</p>
-                              </li>
-                            ))
+                          {allFriends.length > 0 ? (
+                            allFriends.map(friend => {
+                              // Find if there's a conversation with this friend
+                              const conversationId = getConversationId(auth.currentUser.uid, friend.id);
+                              const conversation = userConversations.find(c => c.id === conversationId);
+                              
+                              return (
+                                <li key={friend.id} onClick={() => openNewConversation(friend)}>
+                                  <div className="message-preview">
+                                    <strong>{friend.username}</strong>
+                                    {conversation && conversation.lastMessageTime && (
+                                      <span className="message-time">
+                                        {new Date(conversation.lastMessageTime.toDate()).toLocaleTimeString()}
+                                      </span>
+                                    )}
+                                    {conversation && conversation.unread && (
+                                      <span className="unread-indicator">•</span>
+                                    )}
+                                  </div>
+                                  {conversation ? (
+                                    <p className="message-snippet">{conversation.lastMessage?.substring(0, 30)}...</p>
+                                  ) : (
+                                    <p className="message-snippet empty-message-preview">Start a conversation</p>
+                                  )}
+                                </li>
+                              );
+                            })
                           ) : (
-                            <li className="empty-message">No messages</li>
+                            <li className="empty-message">No friends found</li>
                           )}
-                          <li className="view-all" onClick={viewAllMessages}>
+                          {/* <li className="view-all" onClick={viewAllMessages}>
                             See All in Messenger
-                          </li>
+                          </li> */}
                         </ul>
                       </>
                     ) : (
@@ -271,17 +289,28 @@ function Navbar() {
                         </div>
                         
                         <div className="conversation-messages">
-                          {conversationMessages.map(message => (
-                            <div 
-                              key={message.id}
-                              className={`message ${message.senderId === auth.currentUser.uid ? 'sent' : 'received'}`}
-                            >
-                              <div className="message-content">{message.content}</div>
-                              <div className="message-time">
-                                {message.timestamp ? new Date(message.timestamp.toDate()).toLocaleTimeString() : 'Sending...'}
-                              </div>
+                          {conversationMessages.length === 0 ? (
+                            <div className="no-messages">
+                              <p>No messages yet. Send a message to start the conversation!</p>
                             </div>
-                          ))}
+                          ) : (
+                            conversationMessages.map(message => (
+                              <div 
+                                key={message.id}
+                                className={`message ${message.senderId === auth.currentUser.uid ? 'sent' : 'received'}`}
+                              >
+                                <div className="message-content">{message.content}</div>
+                                <div className="message-time">
+                                  {message.timestamp ? 
+                                    (typeof message.timestamp.toDate === 'function' ? 
+                                      new Date(message.timestamp.toDate()).toLocaleTimeString() : 
+                                      new Date(message.timestamp).toLocaleTimeString()
+                                    ) : 'Sending...'}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                          <div ref={messagesEndRef} /> {/* Add this for auto-scroll */}
                         </div>
                         
                         <form onSubmit={handleSendMessage} className="conversation-reply">

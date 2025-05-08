@@ -1,96 +1,71 @@
-// Messages structure in Firestore:
-// - messages (collection)
-//   - messageId (document)
-//     - senderId: string
-//     - receiverId: string
-//     - content: string
-//     - timestamp: timestamp
-//     - read: boolean
-
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../backend/firebaseConfig';
 import Navbar from '../Navbar';
 import '../styles/Messages.css';
+import { getConversationId, sendMessage, getUserConversations, listenToConversationMessages, markConversationAsRead } from '../utils/conversations';
 
 function Messages() {
   const [friends, setFriends] = useState([]);
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [messageContent, setMessageContent] = useState('');
   const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const currentUser = auth.currentUser;
   
-  // Fetch user's friends
+  // Fetch user's friends and conversations
   useEffect(() => {
     if (!currentUser) return;
     
-    const fetchFriends = async () => {
+    const fetchFriendsAndConversations = async () => {
       try {
+        // Fetch friends
         const friendsRef = collection(db, 'Users', currentUser.uid, 'friends');
-        const unsubscribe = onSnapshot(friendsRef, (snapshot) => {
-          const friendsList = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setFriends(friendsList);
-          setLoading(false);
-        });
+        const friendsSnapshot = await getDocs(friendsRef);
+        const friendsList = friendsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setFriends(friendsList);
         
-        return () => unsubscribe();
+        // Fetch conversations
+        const userConversations = await getUserConversations(currentUser.uid);
+        setConversations(userConversations);
+        
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching friends:", error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
     
-    fetchFriends();
+    fetchFriendsAndConversations();
   }, [currentUser]);
   
-  // Load messages when a friend is selected
+  // Load messages for selected friend
   useEffect(() => {
     if (!currentUser || !selectedFriend) return;
     
-    // Query messages between current user and selected friend
-    const messagesQuery = query(
-      collection(db, 'messages'),
-      where('participants', 'array-contains', currentUser.uid),
-      orderBy('timestamp', 'asc')
-    );
+    const conversationId = getConversationId(currentUser.uid, selectedFriend.id);
     
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      const messageList = snapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        .filter(msg => 
-          (msg.senderId === currentUser.uid && msg.receiverId === selectedFriend.id) ||
-          (msg.senderId === selectedFriend.id && msg.receiverId === currentUser.uid)
-        );
-      
-      setMessages(messageList);
+    // Mark as read when selecting
+    markConversationAsRead(currentUser.uid, conversationId);
+    
+    // Listen for messages
+    const unsubscribe = listenToConversationMessages(conversationId, (messagesList) => {
+      setMessages(messagesList);
     });
     
     return () => unsubscribe();
   }, [currentUser, selectedFriend]);
   
-  const sendMessage = async () => {
+  const handleSendMessage = async () => {
     if (!messageContent.trim() || !selectedFriend) return;
     
     try {
-      await addDoc(collection(db, 'messages'), {
-        content: messageContent,
-        senderId: currentUser.uid,
-        senderName: currentUser.displayName || 'You',
-        receiverId: selectedFriend.id,
-        receiverName: selectedFriend.username || 'Friend',
-        timestamp: serverTimestamp(),
-        read: false,
-        participants: [currentUser.uid, selectedFriend.id]
-      });
-      
+      await sendMessage(currentUser.uid, selectedFriend.id, messageContent);
       setMessageContent('');
     } catch (error) {
       console.error("Error sending message:", error);
@@ -152,7 +127,7 @@ function Messages() {
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      sendMessage();
+                      handleSendMessage();
                     }
                   }}
                 />
