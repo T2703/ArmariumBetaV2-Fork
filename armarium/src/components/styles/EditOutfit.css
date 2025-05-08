@@ -12,125 +12,172 @@
   border-radius: 5px;
 }
 
-.button-container {
-  width: 45%;
+.edit-outfit-container {
+  margin-bottom: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  border: 2px solid #a52a2a;
+  border-radius: 10px;
 }
 
-.left-button {
-    background-color: white;
-    border: 2px solid #a52a2a;
-    border-right: none;
-    width: 50%;
-    padding: 4px 8px;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    cursor: pointer;
-    font-size: 100%;
-    color: #a52a2a;
-  }
-  
-  .right-button {
-    background-color: white;
-    border: 2px solid #a52a2a;
-    width:50%;
-    padding: 4px 8px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-    cursor: pointer;
-    font-size: 100%;
-    color: #a52a2a;
+.bottom-tab {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(248, 249, 250, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
+}
+
+.tab-buttons {
+  width: 100%;
+}
+
+.tab-button {
+  background-color: #a52a2a;
+  color: white;
+  border: none;
+  border-radius: 5px 5px 0px 0px;
+  padding: 10px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.edit-button {
+  margin: 0px 10px;
+  border-radius: 5px;
+}
+
+.tab-button:hover {
+  background-color: #8b0000;
+}
+
+/* muted buttons */
+.tab-button.disabled {
+  background-color: #e0e0e0;
+  color: #a0a0a0;
+  cursor: not-allowed;
+  border: 1px solid #d0d0d0;
+}
+
+.tab-button.disabled:hover {
+  background-color: #e0e0e0;
+  color: #a0a0a0;
+}
+
+.cancel-button {
+  background-color: grey;
+}
+
+.tab-content {
+  width: 100%;
+  border-top: 2px solid #a52a2a;
+}
+
+.wardrobe-content-row {
+  display: flex; /* Aligns items horizontally */
+  width: 100%;
+  gap: 15px; /* Adds space between items */
+  justify-content: flex-start; /* Aligns items to the left */
+  margin-top: 15px; /* Adds space above the row */
+  overflow-x: auto; /* Enables horizontal scrolling */
+  scroll-behavior: smooth;
+}
+
+.wardrobe-row {
+  display: flex;
+  gap: 15px; /* Adds space between items */
+  padding: 20px;
+  margin: 0;
+}
+
+.clothing-preview {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
+  gap: 10px; /* Add spacing between images */
+}
+
+.clothing-image {
+  width: 150px; /* Adjust the width as needed */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover; /* Ensure the image fits nicely */
+}
+
+.edit-outfit-grid-container {
+  display: grid;
+  grid-template-columns: 3fr;
+  grid-template-rows: repeat(3, auto);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.three-column-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 20px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.column-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.column-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.layer-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.remove-layer {
+  position: absolute;
+  color: grey;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50%;
+}
+
+.remove-layer:hover {
+  color: #a52a2a;
+}
+
+@media (max-width: 769px) {
+  .three-column-layout {
+    width: 100vw;
   }
 
-  .left-button:hover, .right-button:hover {
-    background-color: #e7a0a0;
+  .column-image {
+    width: 80px;
+    height: 80px;
   }
-
-  .edit-outfit-container {
-    width: 30%;
-    margin-bottom: 300px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-  }
-
-  .bottom-tab {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: rgba(248, 249, 250, 0.8);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .tab-buttons {
-    width: 100%;
-  }
-  
-  .tab-button {
-    background-color: #a52a2a;
-    color: white;
-    border: none;
-    border-radius: 5px 5px 0px 0px;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .tab-button:hover {
-    background-color: #8b0000;
-  }
-
-  .save-button {
-    float: right;
-  }
-
-  .cancel-button {
-    float: right;
-    background-color: grey;
-  }
-
-  .tab-content {
-    width: 100%;
-    border-top: 2px solid #a52a2a;
-  }
-
-  .wardrobe-content-row {
-    display: flex; /* Aligns items horizontally */
-    width: 100%;
-    gap: 15px; /* Adds space between items */
-    justify-content: flex-start; /* Aligns items to the left */
-    margin-top: 15px; /* Adds space above the row */
-    overflow-x: auto; /* Enables horizontal scrolling */
-    scroll-behavior: smooth;
-  }
-
-  .wardrobe-row {
-    display: flex;
-    gap: 15px; /* Adds space between items */
-    padding: 20px;
-    margin: 0;
-  }
-
-  .clothing-preview {
-    display: flex;
-    flex-direction: column; /* Stack items vertically */
-    align-items: center; /* Center items horizontally */
-    gap: 10px; /* Add spacing between images */
-  }
-  
-  .clothing-image {
-    width: 150px; /* Adjust the width as needed */
-    height: auto; /* Maintain aspect ratio */
-    object-fit: cover; /* Ensure the image fits nicely */
-  }
+}

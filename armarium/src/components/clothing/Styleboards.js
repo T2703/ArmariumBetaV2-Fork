@@ -13,10 +13,11 @@ import '../styles/MyOutfits.css';
 function Styleboards() {
   const [styleboards, setStyleboards] = useState([]);
   const auth = getAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [isDelete, setIsDelete] = useState(false);
-  const [styleboardToDelete, setStyleboardToDelete] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedStyleboards, setSelectedStyleboards] = useState([]);
   const [title, setTitle] = useState('');
   const navigate = useNavigate();
   const DELAY = 750;
@@ -61,173 +62,168 @@ function Styleboards() {
   
       setStyleboards(styleboardsList);
       console.log("Fetched styleboards:", styleboardsList);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching styleboards from storage:", error);
       setLoading(false);
     }
   };
 
-const handleSearchChange = (e) => {
-  const inputValue = e.target.value.toLowerCase();
-  setSearchInput(inputValue);
-}
+  const handleCheckboxClick = (event, styleboard) => {
+    event.stopPropagation();
+    if (event.target.checked) {
+      setSelectedStyleboards((prevList) => [...prevList, styleboard]);
+    } else {
+      setSelectedStyleboards((prevList) => prevList.filter((styleboardId) => styleboardId !== styleboard));
+    }
+  };
 
-const handleDelete = async () => {
-  const user = auth.currentUser;
-  if (!styleboardToDelete.length) {
-    alert("No styleboard has been selected.");
-    return;
+  const handleSearchChange = (e) => {
+    const inputValue = e.target.value.toLowerCase();
+    setSearchInput(inputValue);
   }
 
-  try {
-    await new Promise((resolve) => setTimeout(resolve, DELAY));
-
-    for (const styleboard of styleboardToDelete) {
-      console.log("Starting deletion for styleboard:", styleboard.id);
-
-      // Delete all files in the styleboard folder from Firebase Storage
-      const styleboardFolderRef = ref(storage, `Users/Styleboards/${user.uid}/${styleboard.id}`);
-      const filesSnapshot = await listAll(styleboardFolderRef);
-
-      for (const fileRef of filesSnapshot.items) {
-        console.log("Deleting file:", fileRef.fullPath);
-        await deleteObject(fileRef); 
-      }
-
-      // Delete all subfolders
-      for (const folderRef of filesSnapshot.prefixes) {
-        console.log("Deleting subfolder:", folderRef.fullPath);
-        const subfolderSnapshot = await listAll(folderRef);
-
-        for (const subfileRef of subfolderSnapshot.items) {
-          console.log("Deleting file in subfolder:", subfileRef.fullPath);
-          await deleteObject(subfileRef); // Delete each file in the subfolder
-        }
-      }
-
-      console.log("All files and subfolders deleted for styleboard:", styleboard.id);
-
-      // Delete the styleboard document from Firestore
-      const styleboardDocRef = doc(db, `Users/${user.uid}/Styleboards`, styleboard.id);
-      console.log("Attempting to delete Firestore document:", styleboardDocRef.path);
-      await deleteDoc(styleboardDocRef);
-      console.log("Firestore document deleted for styleboard:", styleboard.id);
+  const handleDelete = async () => {
+    const user = auth.currentUser;
+    if (!selectedStyleboards.length) {
+      alert("No styleboard has been selected.");
+      return;
     }
 
-    setStyleboards((prevStyleboards) =>
-      prevStyleboards.filter(
-        (styleboard) => !styleboardToDelete.some((item) => item.id === styleboard.id)
-      )
-    );
-
-    setStyleboardToDelete([]);
-    setIsDelete(false); 
-    console.log("Deletion process completed.");
-  } catch (error) {
-    console.error("Error deleting styleboard:", error);
-    alert("Failed to delete styleboard. Please try again.");
-  }
-};
-
-const addToDeleteList = (styleboards) => {
-  setStyleboardToDelete(prevList => {
-      if (prevList.some(item => item.id === styleboards.id)) {
-          return prevList.filter(item => item.id !== styleboards.id);
-      } else {
-          return [...prevList, styleboards];
-      }
-  });
-}
-
-const toggleDelete = () => {
-  console.log("Toggling delete mode. Current state:", isDelete); 
-  if (isDelete) {
-    setStyleboardToDelete([]);
-  }
-  setIsDelete(!isDelete);
-};
-
-const handleStyleboardClick = (styleboard) => {
-  navigate(`/styleboard/${styleboard.id}`, { state: { styleboard } });
-};
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          fetchStyleboards(user).then(() => setLoading(false));
-        } else {
-            navigate('/login'); 
+    try {
+        await new Promise((resolve) => setTimeout(resolve, DELAY));
+    
+        for (const styleboard of selectedStyleboards) {
+          const styleboardDocRef = doc(db, `Users/${user.uid}/Styleboards`, styleboard);
+          await deleteDoc(styleboardDocRef);
+          console.log("Styleboard deleted successfully:", styleboard);
         }
-    });
+    
+        setSelectedStyleboards([]);
+        await fetchStyleboards(user); 
+        setShowDeleteModal(false);
+      } catch (error) {
+        console.error("Error deleting styleboard:", error);
+        alert("Failed to delete styleboard. Please try again.");
+      }
+  };
 
-    return () => unsubscribe();
-}, []);
+  const handleStyleboardClick = (styleboard) => {
+    navigate(`/styleboard/${styleboard.id}`, { state: { styleboard } });
+  };
+
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user) {
+            fetchStyleboards(user).then(() => setLoading(false));
+          } else {
+              navigate('/login'); 
+          }
+      });
+
+      return () => unsubscribe();
+  }, []);
 
 return (
   <div>
     {/* Loader overlay */}
     <Loader loading={loading} />
     <Navbar /> 
-  <div className={loading ? 'blurred' : ''}>
-    <h1>My Styleboards</h1>
+    <div className={loading ? 'blurred' : ''}>
+      <h1>My Styleboards</h1>
 
-    <input
-      type="text"
-      placeholder="Search styleboard by title"
-      value={searchInput}
-      onChange={handleSearchChange} 
-    />
+      <input
+        type="text"
+        placeholder="Search styleboard by title"
+        value={searchInput}
+        onChange={handleSearchChange} 
+      />
 
-    <button onClick={toggleDelete}>
-      {isDelete ? 'Cancel' : 'Delete'}
-    </button>
-    {isDelete && (
-      <button onClick={handleDelete} style={{ marginLeft: '10px' }}>
-        Confirm Delete
-      </button>
-    )}
+      <div className="center">
+        <button className="outfit-button" onClick={() => {
+          if (selectedStyleboards.length > 0) {
+            setShowDeleteModal(true);
+          } else {
+            alert("No outfit has been selected.");
+          }
+        }}>
+          Delete
+        </button>
+      </div>
 
-    <div className="center">
-      <div className="outfit-outer">
-        <div className="outfit-center"></div>
-          {styleboards.length > 0 ? (
-            <ul className="outfits-list">
-              {styleboards.map((styleboard) => (
-              <li
-                key={styleboard.id}
-                className="outfit-item"
-                onClick={() =>
-                  handleStyleboardClick(styleboard)
-                }>
-                <div className="image-container">
-                  <img
-                    src={styleboard.outfits[0].topImageUrl}
-                    alt="Top"
-                    className="outfit-image center"
+      <div className="center">
+        <div className="outfit-outer">
+          <div className="outfit-center"></div>
+            {styleboards.length > 0 ? (
+              <ul className="outfits-list">
+                {styleboards.map((styleboard) => (
+                <li
+                  key={styleboard.id}
+                  className="outfit-item"
+                  onClick={() =>
+                    handleStyleboardClick(styleboard)
+                  }>
+                  <input
+                    type="checkbox"
+                    className="select-box"
+                    onClick={(event) => handleCheckboxClick(event, styleboard.id)}
                   />
-                  <img
-                    src={styleboard.outfits[0].bottomImageUrl}
-                    alt="Bottom"
-                    className="outfit-image center"
-                  />
-                  <img
-                    src={styleboard.outfits[0].shoesImageUrl}
-                    alt="Shoes"
-                    className="outfit-image center"
-                  />
-                </div>
-                <h1 className="outfit-title">{styleboard.name}</h1>
-              </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No styleboards found.</p>
-          )}
+                  <div className="image-container">
+                    <img
+                      src={styleboard.outfits[0].topImageUrl}
+                      alt="Top"
+                      className="outfit-image center"
+                    />
+                    <img
+                      src={styleboard.outfits[0].bottomImageUrl}
+                      alt="Bottom"
+                      className="outfit-image center"
+                    />
+                    <img
+                      src={styleboard.outfits[0].shoesImageUrl}
+                      alt="Shoes"
+                      className="outfit-image center"
+                    />
+                  </div>
+                  <h1 className="outfit-title">{styleboard.name}</h1>
+                </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No styleboards found.</p>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Delete Modal */}
+      <div className={`modal ${showDeleteModal ? 'd-block' : 'd-none'}`} tabIndex="-1" role="dialog">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Delete Styleboards</h5>
+              <button type="button" className="btn-close" onClick={() => setShowDeleteModal(false)}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <p>Are you sure you want to delete the selected styleboards?</p>
+              <p>This action cannot be undone.</p>
+            </div>
+            
+            <div className="modal-footer">
+              <button type="button" className="btn btn-primary" onClick={handleDelete}>
+                Delete
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
-);
+  );
 }
 
 export default Styleboards;
