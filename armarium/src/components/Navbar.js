@@ -167,10 +167,10 @@ function Navbar() {
     }
   };
 
-  const viewAllMessages = () => {
-    setShowMessageDropdown(false);
-    navigate('/messages'); // Redirect to messages page
-  }
+  // const viewAllMessages = () => {
+  //   setShowMessageDropdown(false);
+  //   navigate('/messages'); // Redirect to messages page
+  // }
 
   return (
     <nav className="navbar">
@@ -274,9 +274,9 @@ function Navbar() {
                           ) : (
                             <li className="empty-message">No friends found</li>
                           )}
-                          <li className="view-all" onClick={viewAllMessages}>
+                          {/* <li className="view-all" onClick={viewAllMessages}>
                             See All in Messenger
-                          </li>
+                          </li> */}
                         </ul>
                       </>
                     ) : (
