@@ -284,6 +284,14 @@ function EditOutfit() {
             await updateDoc(outfitRef, updateData);
 
             console.log("Outfit updated successfully");
+            
+            setBaseName(chosenName);
+            setBaseTop(chosenTop);
+            setBaseBottom(chosenBottom);
+            setBaseShoes(chosenShoes);
+            setBaseLayers(chosenLayers);
+            setBaseAccessories(chosenAccessories);
+
             setMadeChanges(false);
         } catch (error) {
             console.error("Error saving changes:", error);
