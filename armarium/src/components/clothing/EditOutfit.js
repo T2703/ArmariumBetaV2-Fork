@@ -284,7 +284,7 @@ function EditOutfit() {
             await updateDoc(outfitRef, updateData);
 
             console.log("Outfit updated successfully");
-            
+
             setBaseName(chosenName);
             setBaseTop(chosenTop);
             setBaseBottom(chosenBottom);
@@ -324,10 +324,27 @@ function EditOutfit() {
             </div>
 
             <div className="center">
+            <button
+                onClick={() => handleSaveChanges()}
+                className={`tab-button edit-button save-button ${!madeChanges ? 'disabled' : ''}`}
+                disabled={!madeChanges} // Disable the button if madeChanges is false
+            >
+                Save
+            </button>
+            <button
+                onClick={() => handleCancelChanges()}
+                className={`tab-button edit-button cancel-button ${!madeChanges ? 'disabled' : ''}`}
+                disabled={!madeChanges} // Disable the button if madeChanges is false
+            >
+                Cancel
+            </button>
+            </div>
+
+            <div className="center">
                 <div className="three-column-layout">
                     {/* First Column: Layers */}
                     <div className="column">
-                        <h2>Layers</h2>
+                        <h3>Layers</h3>
                         {chosenLayers.map((layer, index) => (
                         <div key={`layer-${index}`} className="column-item">
                             {layer ? (
@@ -344,7 +361,7 @@ function EditOutfit() {
                                 />
                             </div>
                             ) : (
-                            <p>Layer Spot {index + 1}</p>
+                            <p>Spot {index + 1}</p>
                             )}
                         </div>
                         ))}
@@ -352,7 +369,7 @@ function EditOutfit() {
 
                     {/* Second Column: Top, Bottom, Shoes */}
                     <div className="column">
-                        <h2>Clothing</h2>
+                        <h3>Clothing</h3>
                         <div className="column-item">
                             <img src={chosenTop} alt="Top" className="column-image" />
                         </div>
@@ -366,7 +383,7 @@ function EditOutfit() {
 
                     {/* Third Column: Accessories */}
                     <div className="column">
-                        <h2>Accessories</h2>
+                        <h3>Accessories</h3>
                         {chosenAccessories.map((accessory, index) => (
                             <div key={`accessory-${index}`} className="column-item">
                             {accessory ? (
@@ -384,7 +401,7 @@ function EditOutfit() {
                                     />
                                 </div>
                             ) : (
-                                <p>Accessory Spot {index + 1}</p>
+                                <p>Spot {index + 1}</p>
                             )}
                             </div>
                         ))}
@@ -430,14 +447,7 @@ function EditOutfit() {
                             backgroundColor: tabContent === TABS.ACCESSORIES ? '#a52a2a' : 'white',
                             color: tabContent === TABS.ACCESSORIES ? 'white' : '#a52a2a'
                         }}>Accessories
-                    </button>
-                    
-                    {madeChanges && (
-                        <>
-                            <button onClick={() => handleSaveChanges()} className="tab-button save-button">Save</button>
-                            <button onClick={() => handleCancelChanges()} className="tab-button cancel-button">Cancel</button>
-                        </>
-                    )}                
+                    </button>               
                 </div>
 
                 <div className="tab-content">
