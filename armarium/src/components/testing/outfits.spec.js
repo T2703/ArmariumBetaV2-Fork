@@ -40,18 +40,39 @@ describe('create a outfit', function () {
     console.log('Wardrobe page loaded successfully');
   })
 
-  it('should swipe the top clothing item to the left', async () => {
-    // Wait for the outfit page to load by waiting for a specific element
-    await driver.wait(until.elementLocated(By.css('.outfit-card')), 10000); // Adjust the selector as needed
+  it('Should swipe the top swipeable container to the left', async () => {
+    // Navigate to the outfit page
+    await driver.sleep(10000); // Wait for the wardrobe page to load
+    // Wait for the top swipeable container to load
+    const swipeableContainer = await driver.wait(
+      until.elementLocated(By.css('top-swipeable')),
+      5000
+    );
 
-    // Locate the first outfit card
-    const firstOutfitCard = await driver.findElement(By.id('swipeable-image'));
+    // Get the initial image source
+    const initialImage = await swipeableContainer.findElement(By.id('top-swipeable')).getAttribute('src');
+
+    // Simulate a swipe to the left
     const actions = driver.actions({ async: true });
+    await actions
+        .move({ origin: swipeableContainer }) // Move to the swipeable container
+        .press() // Press down to start the swipe
+        .move({ origin: swipeableContainer, x: -500, y: 0 }) // Drag to the left
+        .release() // Release to complete the swipe
+        .perform();
 
-    // Swipe left on the first outfit card
-    
+    // Wait for the swipe animation to complete
+    await driver.sleep(1000);
+
+    // Get the new image source
+    const newImage = await swipeableContainer.findElement(By.css('img')).getAttribute('src');
+
+    // Verify that the image has changed
+    assert.notStrictEqual(initialImage, newImage, 'The image did not change after swiping left');
+    console.log('Successfully swiped the top swipeable container to the left');
+  });
+
+
 
     console.log('Swiped left on the first outfit card');
   });
-
-});

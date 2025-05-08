@@ -28,6 +28,7 @@ const SwipeableImage = ({ image, handleSwipe, isLocked, isAllLocked, handleSwipe
     <motion.div
       drag={!isLocked && itemLength > 1 ? "x" : false} 
       dragConstraints={{ left: -1000, right: 1000 }}
+      id="swipeable-container"
       style={{
         width: '100%',
         height: '100%',
@@ -555,6 +556,7 @@ function Outfit() {
                     isAllLocked={isLocked.all}
                     handleSwipeAll={handleSwipeAll}
                     itemLength={tops.length}
+                    id="top-swipeable"
                   />
                 </div>
               </div>
