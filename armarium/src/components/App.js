@@ -26,6 +26,7 @@ import EditOutfit from './clothing/EditOutfit';
 import FriendRequests from './profile/FriendRequests';
 import UserProfile from './profile/UserProfile';
 import ClothesLibSearch from './clothing/ClothesLibSearch';
+import RouteTracker from './utils/RouteTracker'; 
 
 /**
  * The routers for linking to different pages.
@@ -34,6 +35,7 @@ import ClothesLibSearch from './clothing/ClothesLibSearch';
 function App() {
   return (
     <Router>
+      <RouteTracker /> {/* This enables page tracking */}
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
