@@ -27,6 +27,7 @@ import FriendRequests from './profile/FriendRequests';
 import UserProfile from './profile/UserProfile';
 import ClothesLibSearch from './clothing/ClothesLibSearch';
 import RouteTracker from './utils/RouteTracker'; 
+import ViewSharedOutfit from './clothing/ViewSharedOutfit'
 
 /**
  * The routers for linking to different pages.
@@ -66,6 +67,8 @@ function App() {
         <Route path="/editOutfit/:outfitId" element={<EditOutfit />} />
         <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} />} />
         <Route path="/add-clothes" element={<ProtectedRoute element={<ClothesLibSearch />} />} />
+        {/* <Route path="/viewSharedOutfit" element={<ViewSharedOutfit />} /> */}
+        <Route path="/viewSharedOutfit/:ownerId/:outfitId" element={<ViewSharedOutfit />} />
       </Routes>
     </Router>
   );
