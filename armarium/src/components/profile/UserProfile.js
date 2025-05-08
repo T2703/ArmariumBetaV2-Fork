@@ -114,8 +114,9 @@ export default function UserProfile() {
     setEditedMeasurements((prev) => ({ ...prev, [name]: value }));
   };
 
+   // Navigate to the Bookmarked page
   const handleBookmarkClick = () => {
-    navigate('/bookmarked'); // Navigate to the Bookmarked page
+    navigate('/bookmarked');
   };
 
   return (

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../backend/firebaseConfig'; // Ensure this is the correct path to your Firebase config
+import { db } from '../backend/firebaseConfig'; 
 import Navbar from '../Navbar';
 import '../styles/BookmarkedPage.css';
 
 function BookmarkedPage() {
-  const { styleboardId } = useParams(); // Get the styleboardId from the URL
+  const { styleboardId } = useParams(); 
   const navigate = useNavigate();
   const [styleboard, setStyleboard] = useState(null);
   const [loading, setLoading] = useState(true);

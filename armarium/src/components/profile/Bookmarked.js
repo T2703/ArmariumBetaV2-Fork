@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { collection, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
-import { db } from '../backend/firebaseConfig'; // Ensure this is the correct path to your Firebase config
+import { useNavigate } from 'react-router-dom';
+import { db } from '../backend/firebaseConfig';
 import Navbar from '../Navbar';
 import '../styles/Bookmarked.css';
 
@@ -10,7 +10,7 @@ function Bookmarked() {
   const [bookmarkedStyleboards, setBookmarkedStyleboards] = useState([]);
   const auth = getAuth();
   const user = auth.currentUser;
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookmarkedStyleboards = async () => {
@@ -50,21 +50,25 @@ function Bookmarked() {
     <div>
       <Navbar />
       <div className="bookmarked-container">
+        {/* Back to Profile Button */}
+        <button onClick={() => navigate('/profile')} style={{ marginBottom: '20px' }}>
+          Back to Profile
+        </button>
         <h1>Your Bookmarked Styleboards</h1>
         {bookmarkedStyleboards.length > 0 ? (
           <ul className="styleboards-list">
             {bookmarkedStyleboards.map((styleboard) => {
-              console.log('Styleboard Data:', styleboard); // Log the styleboard data
+              console.log('Styleboard Data:', styleboard); 
               return (
                 <li
                   key={styleboard.id}
                   className="styleboard-item"
-                  onClick={() => handleStyleboardClick(styleboard.id)} // Add onClick handler
-                  style={{ cursor: 'pointer' }} // Add pointer cursor for better UX
+                  onClick={() => handleStyleboardClick(styleboard.id)}
+                  style={{ cursor: 'pointer' }} 
                 >
                   <h2>{styleboard.name || 'Unnamed Styleboard'}</h2>
                   <div className="outfits-preview">
-                    {styleboard.outfits?.[0] && ( // Display only the first outfit
+                    {styleboard.outfits?.[0] && ( 
                       <div className="outfit-preview">
                         {styleboard.outfits[0].images?.top && (
                           <img

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStyleboardContext } from '../../StyleboardContext';
 import Navbar from '../Navbar';
-import '../styles/ExploreFormat.css'; // Reuse the styles from Styleboards.css
+import '../styles/ExploreFormat.css'; 
 
 function Explore() {
-  const { styleboards } = useStyleboardContext(); // Access styleboards from context
+  const { styleboards } = useStyleboardContext(); 
   const [searchInput, setSearchInput] = useState('');
   const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ function Explore() {
   };
 
   const handleStyleboardClick = (styleboard) => {
-    console.log('Navigating with styleboard:', styleboard); // Debugging
+    console.log('Navigating with styleboard:', styleboard);
     navigate(`/explore/${styleboard.id}`, { state: { styleboard } });
   };
 
@@ -39,7 +39,7 @@ function Explore() {
                   .includes(searchInput)
               )
               .map((styleboard) => {
-                const firstOutfit = styleboard.outfits?.[0]; // Get the first outfit
+                const firstOutfit = styleboard.outfits?.[0]; 
                 return (
                   <li
                     key={styleboard.id}

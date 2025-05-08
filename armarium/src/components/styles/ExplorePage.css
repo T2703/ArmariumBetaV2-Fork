@@ -1,31 +1,26 @@
-
-  /* List of outfits */
-  .outfits-list1 {
+.outfits-list1 {
     list-style: none;
     padding: 0;
-  }
+}
   
-  /* Individual outfit item */
-  .outfit-item1 {
+.outfit-item1 {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
     width: 200px;
     text-align: center;
     background-color: #f9f9f9;
-  }
+}
   
-  /* Container for outfit images */
-  .image-container1 {
+.image-container1 {
     display: flex;
     flex-direction: column;
     gap: 10px;
-  }
+}
   
-/* Container for the bookmark button */
 .bookmark-container {
     position: absolute;
     top: 100px;
     right: 20px;
-    z-index: 1000;
+    z-index: 0;
   }

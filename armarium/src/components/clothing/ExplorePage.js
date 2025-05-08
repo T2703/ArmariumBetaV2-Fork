@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
-import { db } from '../backend/firebaseConfig'; // Ensure this is the correct path to your Firebase config
+import { db } from '../backend/firebaseConfig'; 
 import Navbar from '../Navbar';
 import '../styles/ExplorePage.css';
 
@@ -55,8 +55,8 @@ function ExplorePage() {
         await setDoc(bookmarkDocRef, {
           id: styleboard.id,
           name: styleboard.styleboardName,
-          outfits: styleboard.outfits, // Save the outfits array
-          createdAt: new Date().toISOString(), // Optional: Add a timestamp
+          outfits: styleboard.outfits, 
+          createdAt: new Date().toISOString(), 
         });
         setIsBookmarked(true);
         alert('Styleboard added to InspoFolder.');
@@ -71,7 +71,7 @@ function ExplorePage() {
     return <p>No styleboard data found.</p>;
   }
 
-  console.log('Styleboard data in ExplorePage:', styleboard); // Debugging
+  console.log('Styleboard data in ExplorePage:', styleboard); 
 
   return (
     <div>
@@ -82,9 +82,9 @@ function ExplorePage() {
       <h1>{styleboard.styleboardName}</h1>
       <div className="bookmark-container">
         <img
-          src={isBookmarked ? "bookmark.png" : "unbookmark.png"} // Use inline image paths
+          src={isBookmarked ? "bookmark.png" : "unbookmark.png"} 
           alt={isBookmarked ? "Bookmark" : "Unbookmark"}
-          onClick={handleBookmarkToggle} // Toggle bookmark state
+          onClick={handleBookmarkToggle} 
           style={{ width: "30px", height: "30px", cursor: "pointer" }}
         />
       </div>
