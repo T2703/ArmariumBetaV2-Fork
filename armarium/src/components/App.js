@@ -20,6 +20,8 @@ import Ocassions from './Questionare/Ocassions';
 import EditClothing from './clothing/EditClothing';
 import Styleboards from './clothing/Styleboards';
 import StyleboardPage from './clothing/StyleboardPage';
+import Explore from './clothing/Explore';
+import ExplorePage from './clothing/ExplorePage';
 import Outfits from './clothing/MyOutfits';
 import ProtectedRoute from './ProtectedRoute';
 import EditOutfit from './clothing/EditOutfit';
@@ -28,6 +30,8 @@ import UserProfile from './profile/UserProfile';
 import ClothesLibSearch from './clothing/ClothesLibSearch';
 import RouteTracker from './utils/RouteTracker'; 
 import ViewSharedOutfit from './clothing/ViewSharedOutfit'
+import Bookmarked from './profile/Bookmarked';
+import BookmarkedPage from './profile/BookmarkedPage';
 
 /**
  * The routers for linking to different pages.
@@ -64,6 +68,10 @@ function App() {
         <Route path="/wardrobeStyleboards/:userId" element={<ProtectedRoute element={<Styleboards />} />} />
         <Route path="/" element={<Styleboards />} />
         <Route path="/styleboard/:id" element={<StyleboardPage />} />
+        <Route path="/explore" element={<ProtectedRoute element={<Explore />} />} />
+        <Route path="/explore/:id" element={<ProtectedRoute element={<ExplorePage />} />} />
+        <Route path="/bookmarked" element={<ProtectedRoute element={<Bookmarked />} />} />
+        <Route path="/bookmarked/:styleboardId" element={<ProtectedRoute element={<BookmarkedPage />} />} />
         <Route path="/editOutfit/:outfitId" element={<EditOutfit />} />
         <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} />} />
         <Route path="/add-clothes" element={<ProtectedRoute element={<ClothesLibSearch />} />} />

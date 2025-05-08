@@ -9,7 +9,7 @@ import {
   where,
   getDocs,
   updateDoc,
-  addDoc
+  addDoc,
 } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import '../styles/UserProfile.css';
@@ -48,11 +48,11 @@ export default function UserProfile() {
 
       if (!measurementsSnap.empty) {
         const sortedMeasurements = measurementsSnap.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
           .sort((a, b) => b.timestamp?.toMillis() - a.timestamp?.toMillis());
 
         const latest = sortedMeasurements[0];
-        setUserData(prev => ({ ...prev, ...latest }));
+        setUserData((prev) => ({ ...prev, ...latest }));
       }
 
       const friendsQuery = query(
@@ -60,14 +60,14 @@ export default function UserProfile() {
         where('friends', 'array-contains', user.uid)
       );
       const friendsSnap = await getDocs(friendsQuery);
-      setFriends(friendsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setFriends(friendsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
 
       const messagesQuery = query(
         collection(db, 'messages'),
         where('to', '==', user.uid)
       );
       const messagesSnap = await getDocs(messagesQuery);
-      setMessages(messagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setMessages(messagesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     };
 
     fetchProfileData();
@@ -101,7 +101,7 @@ export default function UserProfile() {
       timestamp: new Date(),
     });
 
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
       height: editedMeasurements.height,
       weight: editedMeasurements.weight,
@@ -111,7 +111,12 @@ export default function UserProfile() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditedMeasurements(prev => ({ ...prev, [name]: value }));
+    setEditedMeasurements((prev) => ({ ...prev, [name]: value }));
+  };
+
+   // Navigate to the Bookmarked page
+  const handleBookmarkClick = () => {
+    navigate('/bookmarked');
   };
 
   return (
@@ -123,11 +128,26 @@ export default function UserProfile() {
           <span className="profile-star">★</span>
         </div>
 
-        <h2 className="weekly-title">Your <span className="weekly-highlight">weekly</span> styles</h2>
+        {/* Bookmark Button */}
+        <div className="bookmark-container1">
+          <img
+            src="bookmark.png" // Path to the bookmark icon
+            alt="Bookmarks"
+            onClick={handleBookmarkClick} // Navigate to the Bookmarked page
+            className="bookmark-button"
+            style={{ cursor: 'pointer', width: '30px', height: '30px' }}
+          />
+        </div>
+
+        <h2 className="weekly-title">
+          Your <span className="weekly-highlight">weekly</span> styles
+        </h2>
 
         <div className="style-bubbles">
           {['Artsy', 'Classic', 'Vintage', 'Edgy', 'Comfortable'].map((style, idx) => (
-            <div key={idx} className={`bubble bubble-${idx}`}>{style}</div>
+            <div key={idx} className={`bubble bubble-${idx}`}>
+              {style}
+            </div>
           ))}
         </div>
 
@@ -174,18 +194,30 @@ export default function UserProfile() {
         <div className="profile-section">
           <h3>Friends</h3>
           <ul>
-            {friends.length ? friends.map(f => (
-              <li key={f.id}>{f.username} ({f.email})</li>
-            )) : <li>No friends found.</li>}
+            {friends.length ? (
+              friends.map((f) => (
+                <li key={f.id}>
+                  {f.username} ({f.email})
+                </li>
+              ))
+            ) : (
+              <li>No friends found.</li>
+            )}
           </ul>
         </div>
 
         <div className="profile-section">
           <h3>Messages</h3>
           <ul>
-            {messages.length ? messages.map(m => (
-              <li key={m.id}><strong>From:</strong> {m.from} - {m.content}</li>
-            )) : <li>No messages found.</li>}
+            {messages.length ? (
+              messages.map((m) => (
+                <li key={m.id}>
+                  <strong>From:</strong> {m.from} - {m.content}
+                </li>
+              ))
+            ) : (
+              <li>No messages found.</li>
+            )}
           </ul>
         </div>
 
