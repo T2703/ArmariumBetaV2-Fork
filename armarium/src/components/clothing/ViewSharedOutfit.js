@@ -79,7 +79,7 @@ function ViewSharedOutfit() {
       <Navbar />
       <div className="shared-outfit-container">
         <div className="shared-outfit-header">
-          <h1 className="outfit-title">{outfit.outfitName || 'Shared Outfit'}</h1>
+          <h1 className="outfit-title1">{outfit.outfitName || 'Shared Outfit'}</h1>
           <button className="back-btn" onClick={handleBack}>
             Back to Conversation
           </button>
