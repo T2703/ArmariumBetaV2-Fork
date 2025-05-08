@@ -1,42 +1,42 @@
 .App {
-    text-align: center;
-  }
-  
-  .styleboard-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 600px; /* Set height to ensure it's visible */
-    margin: auto; /* Center the card */
-    border: 1px solid #ddd; /* Add border for visibility */
-    padding: 20px; /* Add padding */
-  }
-  
-  .swipeable-container {
-    width: 300px;
-    height: 300px;
-    margin: 20px;
-    overflow: hidden;
-    position: relative; /* Ensure absolute positioning works */
-  }
-  
-  .swipeable-container.top {
-    height: 50%; /* Adjust height for better visibility */
-    border-bottom: 1px solid #ddd; /* Add a divider between top and bottom */
-  }
-  
-  .swipeable-container.bottom {
-    height: 50%; /* Adjust height for better visibility */
-    border-bottom: 1px solid #ddd; /* Add a divider between top and bottom */
-  }
+  text-align: center;
+}
 
-  .swipeable-container.shoes {
-    height: 50%; /* Adjust height for better visibility */
-  }
-  
-  .swipeable-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Ensure the images fit properly */
-  }
+.styleboard-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 600px; /* Set height to ensure it's visible */
+  margin: auto; /* Center the card */
+  border: 1px solid #ddd; /* Add border for visibility */
+  padding: 20px; /* Add padding */
+}
+
+.swipeable-container {
+  width: 300px;
+  height: 300px;
+  margin: 20px;
+  overflow: hidden;
+  position: relative; /* Ensure absolute positioning works */
+}
+
+.swipeable-container.top {
+  height: 50%; /* Adjust height for better visibility */
+  border-bottom: 1px solid #ddd; /* Add a divider between top and bottom */
+}
+
+.swipeable-container.bottom {
+  height: 50%; /* Adjust height for better visibility */
+  border-bottom: 1px solid #ddd; /* Add a divider between top and bottom */
+}
+
+.swipeable-container.shoes {
+  height: 50%; /* Adjust height for better visibility */
+}
+
+.swipeable-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ensure the images fit properly */
+}
