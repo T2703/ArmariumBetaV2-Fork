@@ -131,9 +131,9 @@ export default function UserProfile() {
         {/* Bookmark Button */}
         <div className="bookmark-container1">
           <img
-            src="bookmark.png" // Path to the bookmark icon
+            src="bookmark.png"
             alt="Bookmarks"
-            onClick={handleBookmarkClick} // Navigate to the Bookmarked page
+            onClick={handleBookmarkClick}
             className="bookmark-button"
             style={{ cursor: 'pointer', width: '30px', height: '30px' }}
           />
