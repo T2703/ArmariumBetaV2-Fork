@@ -1,85 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Armarium Documentation</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 20px;
-      padding: 0;
-      background-color: #f9f9f9;
-    }
-    h1, h2, h3 {
-      color: #333;
-    }
-    ul {
-      padding-left: 20px;
-    }
-    li {
-      margin-bottom: 10px;
-    }
-    code {
-      background-color: #eee;
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-family: monospace;
-    }
-    a {
-      color: #007BFF;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <h1>How to Run Armarium Locally</h1>
-  <p>To run Armarium locally, follow these steps:</p>
-  <ol>
-    <li>Navigate to the Armarium folder:
-      <code>cd armarium</code>
-    </li>
-    <li>Start the server by running:
-      <code>npm start</code>
-    </li>
-  </ol>
+How to Run Armarium Locally
+To run Armarium locally, you need follow these steps:
+First go into the armarium folder `cd armarium`
+Then run the following command to install the dependencies: `npm install`
+Then run the following command to build the app: `npm run build`
+Then run the following command to start the server: `npm start`
 
-  <h2>How to Add to Wardrobe Library in Armarium Firestore</h2>
-  <ol>
-    <li>Navigate to the Firestore Database tab.</li>
-    <li>Click on the <code>DefaultItemCollection</code>.</li>
-    <li>Click on the "Add Collection" button.</li>
-    <li>Enter the name of the clothing item collection you want to add.</li>
-    <li>Click on the "Add Document" button and start a collection called <code>Items</code>.</li>
-    <li>
-      <strong>Note:</strong> Add the image of the clothing item to Firebase Storage first!
-    </li>
-    <li>Click on the "Add Document" button and add the following fields:
-      <ul>
-        <li><code>color</code> - type: string</li>
-        <li><code>createdAt</code> - type: timestamp</li>
-        <li><code>tags</code> - type: array</li>
-        <li><code>url</code> - type: string (URL of the clothing image in Firebase Storage)</li>
-        <li><code>title</code> - type: string</li>
-      </ul>
-    </li>
-  </ol>
+How to Add To Wardrobe Library in Armarium Firestore</h2>
+Navigate to the Firestore Database tab.
+Click on the `DefaultItemCollection`.
+Click on the "Add Collection" button.
+Enter the name of the clothing item collection you want to add.
+Click on the "Add Document" button and start a collection called "Items".
+PS: Don't forget to add the image of the clothing item to the firebase storage first!
+Click on the "Add Document" button and add these fields:
+`color` - type: string
+`createdAt` - type: timestamp
+`tags` - type: array
+`url` - type: string [url of the clothing image in firebase storage]
+`title` - type: string
 
-  <h2>Storage</h2>
-  <p>
-    Objects are saved both in Firebase Storage and Firestore. Most items can be queried through Firestore, but larger objects like Outfits and Styleboards are also saved in Firebase Storage.
-  </p>
+Storage
+Objects are saved both in Firebase Storage and Firestore, most things are able to be
+queried through Firestore, but larger objects like Outfits and Styleboards are also saved in storage.
 
-  <h3>Resources</h3>
-  <ul>
-    <li><a href="https://firebase.google.com/docs/web/setup" target="_blank">Firebase Armarium MVP V2</a></li>
-    <li><a href="https://github.com/T2703/ArmariumBetaV2-Fork" target="_blank">GitHub ArmariumBetaV2-Fork</a></li>
-    <li><a href="https://www.figma.com/design/qZUbDh76DZK4V3VkdzBBDu/Armarium-UX%2FUI?node-id=0-1&p=f" target="_blank">Figma</a></li>
-    <li><a href="https://armarium-mvp-v2.web.app/" target="_blank">Armarium MVP V2 App</a></li>
-  </ul>
-</body>
-</html>
+Resources:
+<ul>
+  <li><a href="https://firebase.google.com/docs/web/setup">Firebase Amarium MVP V2</a></li>
+  <li><a href="https://github.com/T2703/ArmariumBetaV2-Fork">Github ArmariumBetaV2-Fork</a></li>
+  <li><a href="https://www.figma.com/design/qZUbDh76DZK4V3VkdzBBDu/Armarium-UX%2FUI?node-id=0-1&p=f">Figma</a></li>
+  <li><a href="https://armarium-mvp-v2.web.app/">Armarium-mvp-v2 App</a></li>
