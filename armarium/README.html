@@ -1,0 +1,29 @@
+<h1>How to Run Armarium Locally</h1>
+<p>To run Armarium locally, you need follow these steps:</p>
+<p>First go into the armarium folder `cd armarium`</p>
+<p>Then run the following command to start the server: `npm start`</p>
+
+<h2>How to Add To Wardrobe Library in Armarium Firestore</h2>
+<p>Navigate to the Firestore Database tab.</p>
+<p>Click on the `DefaultItemCollection`.</p>
+<p>Click on the "Add Collection" button.</p>
+<p>Enter the name of the clothing item collection you want to add.</p>
+<p>Click on the "Add Document" button and start a collection called "Items".</p>
+<p>PS: Don't forget to add the image of the clothing item to the firebase storage first!</p>
+<p>Click on the "Add Document" button and add these fields:</p>
+<p>`color` - type: string</p>
+<p>`createdAt` - type: timestamp</p>
+<p>`tags` - type: array</p>
+<p>`url` - type: string [url of the clothing image in firebase storage]</p>
+<p>`title` - type: string</p>
+
+<h2>Storage</h2>
+<p>Objects are saved both in Firebase Storage and Firestore, most things are able to be</p>
+<p>queried through Firestore, but larger objects like Outfits and Styleboards are also saved in storage.</p>
+
+<h3>Resources:</h3>
+<ul>
+  <li><a href="https://firebase.google.com/docs/web/setup">Firebase Amarium MVP V2</a></li>
+  <li><a href="https://github.com/T2703/ArmariumBetaV2-Fork">Github ArmariumBetaV2-Fork</a></li>
+  <li><a href="https://www.figma.com/design/qZUbDh76DZK4V3VkdzBBDu/Armarium-UX%2FUI?node-id=0-1&p=f">Figma</a></li>
+  <li><a href="https://armarium-mvp-v2.web.app/">Armarium-mvp-v2 App</a></li>
